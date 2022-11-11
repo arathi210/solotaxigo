@@ -1,0 +1,129 @@
+{{ define "Startmap" }}
+
+{{ template "Header" }}
+
+<body>
+    
+    <div class="start-map">
+        {{ template "Menu" }}
+        <div class="start-iframe">
+            <div class="start-iframe-inner">
+                <div class="icon ">
+                    <div class="icon-inner">
+                        <div class=" side-bar-click"><img src="/public/asset/images/three-dot.png" alt="hamberger-menu"></div>
+                        <p></p>
+                    </div>
+                    <div class="icon-inner-two"><img src="/public/asset/images/gps.png" alt="Gps image"></div>
+                </div>
+
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d61313.4276691518!2d74.78410638236622!3d16.164348227801494!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc0afd5c38ffc3f%3A0x309845646e521b4d!2sGokak%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1667892375275!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen=""
+                 loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+
+            <div class="map-start">
+                <div class="map-fare-head">
+                    <span class="map-fare">
+                        <p>Fare</p>
+                        <strong>₹00.00</strong>
+                    </span><span id="demo" class="map-start-circle">
+                        <a  href="/stopmap"><button class="btn">Start </button></a>
+                    </span>
+                    <span class="map-fare">
+                        <p>Ride</p>
+                        <strong>0.00Km</strong>
+                    </span>
+                </div>
+                <div class="map-fare-mins">
+                    <div class="clock-fare-head">
+                        <div class="clock-img"> <img src="/public/asset/images/clock.png" alt="clock"></div>
+
+                        <p class="clock-img-para">00:00 <span>Mins</span> </p>
+                    </div>
+                    <div class="clock-fare-head">
+                        <div class="clock-img"> <img src="/public/asset/images/km.png" alt="clock"> </div>
+                        <p class="clock-img-para">00:00 <span>Km/Hr</span> </p>
+                    </div>
+
+                </div>
+                <div class="start-map-road">
+                    <ul class="road-route">
+                        <li class="indra-road">7th, Main Road, Indira Nagar, Chennai. </li>
+                        <li class="social-plaza">Social Plaza, Anna Nagar, Chennai.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- <input type="text" name="location" id="location" value="">  -->
+<p id="location"></p>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="/public/js/custom.js"></script>
+    <script src="/public/asset/bootstrap/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=geometry"></script>
+
+<script>
+$( document ).ready(function() {
+
+    var d = new Date($.now());
+//alert(d.getDate()+"-"+(d.getMonth() + 1)+"-"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds());
+
+if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+           // alert(location);
+           var d = new Date($.now());
+           lat = position.coords.latitude;
+           lon = position.coords.longitude;
+   // alert(lat);
+           
+            $('#location').val(location);
+            document.getElementById("location").innerHTML = location;
+            var link = $('#demo a');
+link.attr('href', link.attr('href') + '?lat='+lat+'&lon='+lon+'&date='+d.getDate()+"-"+(d.getMonth() + 1)+"-"+d.getFullYear()+'&time='+d.getHours()+":"+d.getMinutes());
+
+        }, function () {
+           // alert(null);
+         
+        });
+    }
+    else {
+        //alert(null);
+       
+    }
+loc =  $('#location').html();
+ //alert(loc)
+    $.ajax({
+                //alert(locvalue)
+
+url: "/stopmap",
+type: 'GET',
+dataType: "json",
+data: {
+            "data": '{"loc": '+loc+',"date": "World"}' 
+        },
+success: function(response)
+   {
+//alert(loc)
+    //  console.log(response);
+               
+   } 
+});
+//alert(location);
+//document.getElementById("demo").innerHTML = loc;
+
+
+//alert(calcDistance(p1, p2));
+
+//calculates distance between two points in km's
+function calcDistance(p1, p2) {
+  return (google.maps.geometry.spherical.computeDistanceBetween(p1, p2) / 1000).toFixed(2);
+}
+});
+</script>
+
+</body>
+
+</html>
+{{ end }}

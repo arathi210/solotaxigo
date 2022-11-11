@@ -1,0 +1,49 @@
+{{ define "Login" }}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/public/css/responsive.css">
+  <link rel="stylesheet" href="/public/asset/bootstrap/css/bootstrap.min.css">
+  <title>Solo Taxi</title>
+</head>
+
+<body>
+  <div class="login-page ">
+    <div class="solo-logo"><img src="/public/asset/images/Logo.png" alt="Logo"></div>
+    <div class="solo-login solo-container">
+      <h3 class="login-head">Login</h3>
+      <p class="login-para">Welcome Back to Solo Taxi</p>
+      
+    <form action="login-check" method="post">
+      <div class="input-wrapper">
+        <input type="text" name="email" placeholder="Enter your email id/mobile" class="login-input form-control" value="">
+        <label for="" class="login-label form-label">Email Id/Mobile</label>
+      </div>
+      <div class="input-wrapper">
+        <input type="password" name="password" placeholder="Enter your Password" class="login-input form-control forgot-password">
+        <label for="" class="login-label form-label">Password</label>
+      </div>
+      <p class="Forgot Password-para"><a href="/forgotpassword">Forgot Password?</a> </p>
+      <button type="submit" class="onbord-btn btn">
+        Login</button>
+    </form>
+
+      <!-- <a href="/startmap"> <button class="onbord-btn btn">
+          Login</button></a> -->
+
+      <p class="haveaccount"><a href="/register">Don’t have an account? <span>Register</span> </a> </p>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="/public/js/custom.js"></script>
+  <script src="/public/asset/bootstrap/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
+{{ end }}

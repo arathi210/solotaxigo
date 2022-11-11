@@ -1,0 +1,72 @@
+{{ define "Home" }}
+
+{{ template "Header" }}
+
+<body>
+  <div class="onboarding ">
+    <!-- Carousel -->
+    <div id="demo" class="carousel slide" data-interval="false">
+
+      <!-- Indicators/dots -->
+      <div class="carousel-indicators">
+        <button type="button" data-bs-target="#demo" data-bs-slide-to="0" class="active"></button>
+        <button type="button" data-bs-target="#demo" data-bs-slide-to="1"></button>
+        <button type="button" data-bs-target="#demo" data-bs-slide-to="2"></button>
+      </div>
+
+      <!-- The slideshow/carousel -->
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <div class="carousel-caption solo-container">
+            <h3 class="onboard-head">Best Way to Solo Ride</h3>
+            <p class="onboard-para">Lorem Ipsum is simply dummy text of the
+              printing and typesetting industry. Lorem Ipsum.
+            </p>
+          </div>
+          <img src="/public/asset/images/onboard-1.png" alt="onboard-1" class="d-block" style="width:100%">
+        </div>
+        <div class="carousel-item">
+          <div class="carousel-caption solo-container">
+            <h3 class="onboard-head">Select Your Destination</h3>
+            <p class="onboard-para">Lorem Ipsum is simply dummy text of the
+              printing and typesetting industry. Lorem Ipsum.
+            </p>
+          </div>
+          <img src="/public/asset/images/onboard-2.png" alt="onboard-2" class="d-block" style="width:100%">
+        </div>
+        <div class="carousel-item">
+          <div class="carousel-caption solo-container">
+            <h3 class="onboard-head">Enjoy Your Ride</h3>
+            <p class="onboard-para">Lorem Ipsum is simply dummy text of the
+              printing and typesetting industry. Lorem Ipsum.
+            </p>
+          </div>
+          <img src="/public/asset/images/onboard-3.png" alt="onboard-3" class="d-block" style="width:100%">
+        </div>
+      </div>
+
+      <!-- Left and right controls/icons -->
+      <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+      </button>
+    </div>
+    <div class="onboard-btn-head solo-container">
+      <a href="/login"><button class="onbord-btn btn">Next </button></a>
+      <!-- <p class="onboard-skip">Skip</p> -->
+    </div>
+
+  </div>
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="/public/js/custom.js"></script>
+  <script src="/public/asset/bootstrap/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
+{{ end }}

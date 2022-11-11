@@ -1,0 +1,139 @@
+{{ define "Dashboard" }}
+
+{{ template "Header" }}
+
+<body>
+    <div class="dashboard">
+
+        {{ template "Menu" }}
+
+        <div class="ride-header">
+            <div class="d-flex align-items-center">
+                <div class="three-dot-div side-bar-click"><img src="/public/asset/images/three-dot.png" alt="three-dot"></div>
+                <h3 class="ride-heading">Dashboard</h3>
+            </div>
+            <select class="form-select week-select" aria-label="Default select example">
+                <option selected>Week</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+            </select>
+        </div>
+        <div class="dash-inner">
+            <div class="earning-warpper solo-container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="earning d-flex justify-content-between  ">
+                            <div class="earn-img"><img src="/public/asset/images/earning.png" alt="earning"></div>
+                            <div>
+                                <p>Total Earnings</p><strong>₹1236.16</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-one">
+                        <div class="far-earn">
+                            <div class="earn-img"><img src="/public/asset/images/far.png" alt="earning"></div>
+                            <div class="far-inner"><strong>₹136</strong>
+                                <p>Today so Far</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-two">
+                        <div class="savings far-earn">
+                            <div class="earn-img"><img src="/public/asset/images/saving.png" alt="earning"></div>
+                            <div class="far-inner">
+                                <div class="d-flex align-items-center"><strong>₹112</strong>
+                                    <div class="up-green-div"><img src="/public/asset/images/up-green.png" alt="up-green">
+                                    </div>
+                                </div>
+                                <p>Yesterday vs Same day</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="solo-container dash-bar-header">
+                <h3 class="dash-reven">Revenue</h3>
+                <div class=" Dashboard-bar">
+                    <canvas id="chart"></canvas>
+                </div>
+            </div>
+
+            <div class="route-time solo-container">
+                <span>
+                    <p>Total Trips</p>
+                    <strong>12</strong>
+                </span>
+                <span>
+                    <p>Worked Time</p>
+                    <strong>01:54:15</strong>
+                </span>
+                <span>
+                    <p>Distance</p>
+                    <strong>30Km</strong>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="/public/js/custom.js"></script>
+    <script src="/public//asset/bootstrap/js/bootstrap.min.js"></script>
+    <script>
+        var data = {
+            xLabels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            yLabels: [100, 200, 30],
+            datasets: [{
+                label: "Dataset",
+                backgroundColor: "#FFDCA2",
+                hoverBackgroundColor: "#FEB63F",
+                data: [620, 400, 190, 660, 480, 200, 450],
+                borderRadius: 50,
+            }]
+        };
+
+        var options = {
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    stacked: true,
+                    grid: {
+                        display: true,
+                        color: "#DDDDDD",
+                        borderDash: [6, 4],
+
+                    },
+                    ticks: {
+                        steps: 8,
+
+                    },
+                    beginAtZero: false,
+                    max: 800,
+                    min: 50,
+
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        };
+
+        new Chart('chart', {
+            type: 'bar',
+            options: options,
+            data: data
+        });
+    </script>
+
+</body>
+
+</html>
+{{ end }}

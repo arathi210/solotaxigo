@@ -1,0 +1,60 @@
+{{ define "Profile" }}
+
+{{ template "Header" }}
+
+<body>
+
+  <div class="profile-page login-page register-page fare-setting">
+    <div class="ride-header">
+      <div class="three-dot-div"><a href="/startmap"><img src="/public/asset/images/back.png" alt="three-dot"></a>
+
+      </div>
+      <h3 class="ride-heading">Profile</h3>
+    </div>
+    <div class="profile-inner solo-container">
+      <div class="profile-inner-wrapper">
+        <div class="profile-banner"><img src="/public/asset/images/big-profile.png" alt="profile-image"></div>
+        <form role="form" method="POST" action="/user-update" enctype ="multipart/form-data" id="myform">
+          <input type="hidden" name="uid" value="{{ .Id }}" />
+          <div class="input-wrapper">
+          <input type="text" name="name" placeholder="Enter your name" class="login-input form-control" value={{.Name}}>
+          <label for="" class="login-label form-label">Full Name</label>
+        </div>
+        <div class="input-wrapper">
+          <div class="mbl-input-wrapper" for="mobilenumber">
+            <span><img src="/public/asset/images/india.png" alt=""></span>
+            <input type="text" name="mobile" class="form-control univ-login-input login-input" id="MobileAndAddress"
+              placeholder="Enter your number" for="mobilenumber" value={{ .Mobile }}>
+          </div>
+          <label for="" class="login-label form-label">Mobile Number</label>
+        </div>
+
+        <div class="input-wrapper">
+          <input type="text" name="email" placeholder="Enter your Email Address" class="login-input form-control"
+          value={{ .Email }}>
+          <label for="" class="login-label form-label">Email Address</label>
+        </div>
+        <div class="input-wrapper">
+          <input type="password" name="password" placeholder="Enter your Password" class="login-input form-control forgot-password"
+            value={{ .Password }}>
+          <label for="" class="login-label form-label">Password </label>
+        </div>
+      </div>
+      <button class="btn save-btn">Edit</button>
+    </form>
+      
+
+    </div>
+  </div>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="/public/js/custom.js"></script>
+  <script src="/public/asset/bootstrap/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
+{{ end }}

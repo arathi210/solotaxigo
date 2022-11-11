@@ -1,0 +1,113 @@
+{{ define "Customefare" }}
+
+{{ template "Header" }}
+
+<body>
+
+    <div class="custom-fare">
+        
+        {{ template "Menu" }}
+
+        <div class="ride-header">
+            <div class="three-dot-div side-bar-click"><img src="/public/asset/images/three-dot.png" alt="three-dot">
+
+            </div>
+            <h3 class="ride-heading">My Fare</h3>
+        </div>
+        <div class="custome-inner ride-body-head">
+            <!-- <div class="day-ride solo-container">
+                <div class="day-ride-head d-flex justify-content-between">
+                    <h1>Day Ride</h1>
+                    <div class="edit-img"><a href="/fare-setting"><img src="/public/asset/images/edit.png"
+                                alt="edit image"></a></div>
+                </div>
+                <div class="row day-ride-inner">
+                    <div class="col-6">
+                        <p>Base Fare</p>
+                        <strong>₹24</strong>
+                    </div>
+                    <div class="col-6">
+                        <p>Minimum Fare</p>
+                        <strong>₹18</strong>
+                    </div>
+                    <div class="col-6">
+                        <p>Cost Per Minute</p>
+                        <strong>₹16</strong>
+                    </div>
+                    <div class="col-6">
+                        <p>Cost Per Km</p>
+                        <strong>₹25</strong>
+                    </div>
+                </div>
+                <button class="btn set-default"><a href="/startmap">Set as Default</a></button>
+            </div> -->
+            <!-- <div class="day-ride solo-container">
+                <div class="day-ride-head d-flex justify-content-between">
+                    <h1>Night Ride</h1>
+                    <div class="edit-img"><a href="/fare-setting"><img src="/public/asset/images/edit.png"
+                                alt="edit image"></a></div>
+                </div>
+                <div class="row day-ride-inner">
+                    <div class="col-6">
+                        <p>Base Fare</p>
+                        <strong>₹30</strong>
+                    </div>
+                    <div class="col-6">
+                        <p>Minimum Fare</p>
+                        <strong>₹36</strong>
+                    </div>
+                    <div class="col-6">
+                        <p>Cost Per Minute</p>
+                        <strong>₹24</strong>
+                    </div>
+                    <div class="col-6">
+                        <p>Cost Per Km</p>
+                        <strong>₹40</strong>
+                    </div>
+                </div>
+                <button class="btn set-default"><a href="/startmap">Set as Default</a></button>
+            </div> -->
+
+            {{ range . }}
+            <div class="day-ride solo-container">
+                <div class="day-ride-head d-flex justify-content-between">
+                    <h1>{{.FareName}}</h1>
+                    <div class="edit-img"><a href="/fare-setting"><img src="/public/asset/images/edit.png"
+                                alt="edit image"></a></div>
+                </div>
+                <div class="row day-ride-inner">
+                    <div class="col-6">
+                        <p>Base Fare</p>
+                        <strong>₹{{.BaseFare}}</strong>
+                    </div>
+                    <div class="col-6">
+                        <p>Minimum Fare</p>
+                        <strong>₹{{.MinFare}}</strong>
+                    </div>
+                    <div class="col-6">
+                        <p>Cost Per Km</p>
+                        <strong>₹{{.Cost}}</strong>
+                    </div>
+                    
+                </div>
+                <button class="btn set-default"><a href="/startmap?id={{ .Id }}">Set as Default</a></button>
+            </div>
+            {{ end }}
+
+            <div class="add-btn solo-container"><a href="/fare-setting"><img src="/public/asset/images/add.png"
+                        alt="add image"></a></div>
+        </div>
+
+    </div>
+
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="/public/js/custom.js"></script>
+    <script src="/public/asset/bootstrap/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
+{{ end }}
