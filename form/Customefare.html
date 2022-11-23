@@ -72,9 +72,13 @@
             <div class="day-ride solo-container">
                 <div class="day-ride-head d-flex justify-content-between">
                     <h1>{{.FareName}}</h1>
-                    <div class="edit-img"><a href="/fare-setting"><img src="/public/asset/images/edit.png"
-                                alt="edit image"></a></div>
-                </div>
+                    <table><tr><td>  <a href="/fare-setting-edit?id={{ .Id }}"><img src="/public/asset/images/edit.png" alt="edit image"></a></td>
+                    <td>&nbsp;&nbsp;&nbsp;</td><td>  <a href="/fare-delete?id={{ .Id }}"><img src="/public/asset/images/delete.png" alt="edit image"></a></td></tr></table>
+                    <!-- <div class="edit-img">
+                        <a href="/fare-setting-edit?id={{ .Id }}"><img src="/public/asset/images/edit.png" alt="edit image"></a>
+                   </div> -->
+                   <!-- <div class="del-img"><img src="/public/asset/images/delete.png" alt="delete icon"></div> -->
+                    </div>
                 <div class="row day-ride-inner">
                     <div class="col-6">
                         <p>Base Fare</p>

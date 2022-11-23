@@ -1,4 +1,4 @@
-{{ define "Fare-setting" }}
+{{ define "Fare-setting-edit" }}
 
 {{ template "Header" }}
 
@@ -9,44 +9,33 @@
       <div class="d-flex align-items-center">
         <div class="three-dot-div"><a href="/customefare"><img src="/public/asset/images/back.png" alt="three-dot"></a>
         </div>
-        <h3 class="ride-heading">Fare Setting</h3>
+        <h3 class="ride-heading">Fare Setting Edit</h3>
       </div>
       <!-- <div class="del-img"><img src="/public/asset/images/delete.png" alt="delete icon"></div> -->
     </div>
     <div class="fare-setting-inner solo-container">
-      <form role="form" method="POST" action="/fare-insert" enctype ="multipart/form-data" id="myform">
+      <form role="form" method="POST" action="/fare-update" enctype ="multipart/form-data" id="myform">
         <div class="input-wrapper">
-          <input type="text" name="fare_name" placeholder="Enter your fare name" class="login-input form-control" value="Day Ride">
+          <input type="text" name="fare_name" placeholder="Enter your fare name" class="login-input form-control" value={{.FareName}}>
           <label for="" class="login-label form-label">Fare Name</label>
         </div>
-        <!-- <div class="input-wrapper">
-          <select class="form-select login-input sel-dropdown" aria-label="Default select example" data-option="hidden">
-            <option selected value="">Select your Currency</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
-          </select>
-          <label for="" class="login-label form-label">Currency Symbol</label>
-        </div> -->
-        <!-- <div class="input-wrapper">
-          <input type="text" placeholder="Enter your Fraction Digits" class="login-input form-control">
-          <label for="" class="login-label form-label">Fraction Digits</label>
-        </div> -->
+      
         <div class="input-wrapper extra-content">
           <p class="extra-para">A flat fee changed at the begining of the ride</p>
-          <input type="text" name="base_fare" placeholder="Enter your Base Fare" class="login-input form-control">
+          <input type="text" name="base_fare" placeholder="Enter your Base Fare" class="login-input form-control" value={{.BaseFare}}>
           <label for="" class="login-label form-label">Base Fare</label>
         </div>
         <div class="input-wrapper extra-content">
           <p class="extra-para">Minimum amount charged on a ride</p>
-          <input type="text" name="min_fare" placeholder="Enter your Minimum Fare" class="login-input form-control">
+          <input type="text" name="min_fare" placeholder="Enter your Minimum Fare" class="login-input form-control" value={{.MinFare}}>
           <label for="" class="login-label form-label">Minimum Fare</label>
         </div>
         <div class="input-wrapper extra-content">
           <p class="extra-para">How much is charged for each minute of the ride</p>
-          <input type="text" name="cost" placeholder="Enter your Cost Per Minute" class="login-input form-control">
+          <input type="text" name="cost" placeholder="Enter your Cost Per Minute" class="login-input form-control" value={{.Cost}}>
           <label for="" class="login-label form-label">Cost Per Km</label>
         </div>
+        <input type="hidden" name="id" placeholder="Enter your Cost Per Minute" class="login-input form-control" value={{.Id}}>
         <!-- <div class="input-wrapper">
           <select class="form-select login-input sel-dropdown" aria-label="Default select example" data-option="hidden">
             <option selected value="">Select your Measure Unity</option>

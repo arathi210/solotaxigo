@@ -7,6 +7,11 @@
 <p id="lon">{{.lon}}</p>
 <p id="date">{{.date}}</p>
 <p id="time">{{.time}}</p>
+<p id="cost">{{.cost}}</p>
+<p id="lastinsertid">{{.lastinsertid}}</p>
+<span
+                                class="fare-inner-two" style="display: none;" id="wait">12</span>
+
 <!-- <p id="stopDate">{{.stopDate}}-{{.stopMonth}}-{{.stopYear}}</p>
 <p id="stopTime">{{.stopHour}}:{{.stopMinute}}</p> -->
     <div class="start-map stop-map">
@@ -31,14 +36,14 @@
                 <div class="map-fare-head">
                     <span class="map-fare">
                         <p>Fare</p>
-                        <strong>₹89.00</strong>
+                        <strong>₹{{.basefare}}</strong>
                     </span>
                     <span class="map-start-circle">
                         <button id="stop" class="btn">Stop</button>
                     </span>
                     <span class="map-fare">
                         <p>Ride</p>
-                        <strong>2.05Km</strong>
+                        <strong id="ride"></strong>
                     </span>
                 </div>
                 <div class="map-fare-mins">
@@ -65,11 +70,11 @@
                     <h3 class="rate-card-head">Rate Card</h3>
                     <div class="rate-card-duration">
                         <div class="inner-duration-card">
-                            <p class="min-rate">27 Min 36 Sec</p>
+                            <p class="min-rate" id="duration"></p>
                             <p class="rate-dis">Duration</p>
                         </div>
                         <div class="inner-duration-card">
-                            <p class="min-rate">6.12 KiloMetre</p>
+                            <p class="min-rate" id="distance">6.12 KiloMetre</p>
                             <p class="rate-dis">Distance</p>
                         </div>
 
@@ -80,14 +85,14 @@
                                 <div></div>
                                 <div class="inner-pickup">
                                     <p class="inner-pickup-one">Pick up</p>
-                                    <p class="inner-pickup-one">08:30AM</p>
+                                    <p class="inner-pickup-one" id="pickup">08:30AM</p>
                                 </div>
                                 7th, Main Road, Indira Nagar, Chennai.
                             </li>
                             <li class="social-plaza">
                                 <div class="inner-pickup">
                                     <p class="inner-pickup-one">Drop</p>
-                                    <p class="inner-pickup-one">08:47AM</p>
+                                    <p class="inner-pickup-one" id="drop">08:47AM</p>
                                 </div>
                                 Social Plaza, Anna Nagar, Chennai.
                             </li>
@@ -96,19 +101,22 @@
                     <div class="fare-details">
                         <h3>Fare Details</h3>
                         <div class="fare-inner"> <span class="fare-inner-one">Base fare</span><span
-                                class="fare-inner-two">₹84</span></div>
-                        <div class="fare-inner"> <span class="fare-inner-one">Minimum fare</span><span
-                                class="fare-inner-two">₹32</span></div>
+                                class="fare-inner-two">₹{{.basefare}}</span>
+                                <span
+                                class="fare-inner-two" style="display: none;" id="basefare">₹{{.basefare}}</span></div>
+                        <!-- <div class="fare-inner"> <span class="fare-inner-one">Minimum fare</span><span
+                                class="fare-inner-two">₹32</span></div> -->
                         <div class="fare-inner"> <span class="fare-inner-one">Price per Km (4x16)</span><span
-                                class="fare-inner-two">₹22</span></div>
-                        <div class="fare-inner"> <span class="fare-inner-one">Price per Minute (22x1.6)</span><span
-                                class="fare-inner-two">₹23</span></div>
+                                class="fare-inner-two">₹{{.cost}}</span></div>
+                        <div class="fare-inner"> <span class="fare-inner-one">Total Distance</span><span
+                                class="fare-inner-two" id="totaldistance"></span></div>
                         <div class="fare-inner"> <span class="fare-inner-one">Waiting Charges</span><span
-                                class="fare-inner-two">₹12</span></div>
-                        <div class="fare-inner"> <span class="fare-inner-one">Total</span><span
-                                class="fare-inner-two">₹180</span></div>
+                                class="fare-inner-two">₹12</span><span
+                                class="fare-inner-two" style="display: none;" id="wait">12</span></div>
+                        <div class="fare-inner"> <span class="fare-inner-one">Total(Distance x Cost + Waiting Charges)</span><span
+                                class="fare-inner-two" id="total"></span></div>
                     </div>
-                    <button class="btn amount-receive" data-bs-toggle="modal" data-bs-target="#myModal">Amount
+                    <button class="btn amount-receive" data-bs-toggle="modal" data-bs-target="#myModal" id="amount">Amount
                         Received</button>
                 </div>
             </div>
@@ -149,19 +157,14 @@
      function initialize() {
     geocoder = new google.maps.Geocoder();
 
-
-
-  }
+}
 $( document ).ready(function() {
-    $('#stop').click(function() {
-
-        var d = new Date($.now());
-alert(d.getDate()+"-"+(d.getMonth() + 1)+"-"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds());
-
-    });
+    var p1 = new google.maps.LatLng(16.164269, 74.819126);
     lat =  $('#lat').html();
     lon =  $('#lon').html();
-var p1 = new google.maps.LatLng(16.164269, 74.819126);
+    tolat = 16.164269;
+    tolon = 74.819126;
+
 var p2 = new google.maps.LatLng(lat,lon);
 //alert(p2);
 if (navigator.geolocation) {
@@ -170,7 +173,7 @@ if (navigator.geolocation) {
             //alert(location);
             lat = position.coords.latitude;
     lon = position.coords.longitude;
-    alert(lat);
+    //alert(lat);
            
         }, function () {
             alert(null);
@@ -180,11 +183,102 @@ if (navigator.geolocation) {
         alert(null);
     }
 alert(calcDistance(p1, p2));
+document.getElementById("ride").innerHTML = calcDistance(p1, p2)+" km";
 
 //calculates distance between two points in km's
 function calcDistance(p1, p2) {
   return (google.maps.geometry.spherical.computeDistanceBetween(p1, p2) / 1000).toFixed(2);
 }
+
+    $('#stop').click(function() {
+
+        var d = new Date($.now());
+alert(d.getDate()+"-"+(d.getMonth() + 1)+"-"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds());
+
+stopdate = (d.getMonth() + 1)+"-"+d.getDate()+"-"+d.getFullYear();
+stoptime = d.getHours()+":"+d.getMinutes();
+startdate =  $('#date').html();
+starttime =  $('#time').html();
+alert(startdate);
+alert(starttime);
+
+var start_actual_time  =  startdate+' '+starttime;
+var end_actual_time    =  (d.getMonth() + 1)+"/"+d.getDate()+"/"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes();
+
+// var start_actual_time  =  "01/17/2012 11:20";
+// var end_actual_time    =  "01/18/2012 12:25";
+
+start_actual_time = new Date(start_actual_time);
+end_actual_time = new Date(end_actual_time);
+
+var diff = end_actual_time - start_actual_time;
+
+var diffSeconds = diff/1000;
+var HH = Math.floor(diffSeconds/3600);
+var MM = Math.floor(diffSeconds%3600)/60;
+
+var formatted = ((HH < 10)?("0" + HH):HH) + " Hour " + ((MM < 10)?("0" + MM):MM)+ " Min " 
+
+
+alert(formatted);
+lat =  $('#lat').html();
+    lon =  $('#lon').html();
+    cost =  $('#cost').html();
+    wait =  $('#wait').html();
+    lastid =  $('#lastinsertid').html();
+var p1 = new google.maps.LatLng(16.164269, 74.819126);
+var p2 = new google.maps.LatLng(lat,lon);
+document.getElementById("duration").innerHTML = formatted;
+document.getElementById("pickup").innerHTML = start_actual_time;
+document.getElementById("drop").innerHTML = end_actual_time;
+document.getElementById("distance").innerHTML = calcDistance(p1, p2);
+distance = calcDistance(p1, p2);
+document.getElementById("totaldistance").innerHTML = calcDistance(p1, p2);
+//$('#duration').html() = formatted;
+total = Math.ceil((calcDistance(p1, p2)*cost)+wait);
+document.getElementById("total").innerHTML = Math.ceil(total);
+
+
+
+
+$.ajax({
+                               url: 'receive',
+                               type: 'post',
+                               dataType: 'html',
+                                data : { tolat: tolat,tolon:tolon,stopdate:stopdate,stoptime:stoptime,distance:distance,wait:wait,duration:formatted,total:total,lastid:lastid},
+                           // data : { tolat: "hello"},
+                               success : function(data) {
+                                 alert('ajax data posted');
+                                // $('#result').html(data);
+                               },
+                             });
+                        
+
+
+
+
+
+
+
+
+
+    });
+
+    $('#amount').click(function() {
+        lastid =  $('#lastinsertid').html();
+        $.ajax({
+                               url: 'amount',
+                               type: 'post',
+                               dataType: 'html',
+                                data : { amount_status: "1",lastid:lastid},
+                           // data : { tolat: "hello"},
+                               success : function(data) {
+                                // alert('ajax data posted');
+                                // $('#result').html(data);
+                               },
+                             });
+    });
+    
 
 
 //alert(latlong1);

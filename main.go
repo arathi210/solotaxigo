@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -52,7 +53,10 @@ func dbConn() (db *sql.DB) {
 	if err != nil {
 		panic(err.Error())
 	}
+
+	//log.Println("connected")
 	return db
+
 }
 
 var tmpl = template.Must(template.ParseGlob("form/*"))
@@ -67,6 +71,7 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 func Logincheck(res http.ResponseWriter, req *http.Request) {
 
 	db := dbConn()
+	//log.Println(db)
 	if req.Method != "POST" {
 		http.ServeFile(res, req, "login.html")
 		return
@@ -250,6 +255,17 @@ func Startmap(w http.ResponseWriter, r *http.Request) {
 
 }
 func Stopmap(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "cookie-name")
+
+	// Check if user is authenticated
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
+	uid := session.Values["id"]
+	db := dbConn()
 	//var c *gin.Context
 	now := time.Now()
 
@@ -271,6 +287,8 @@ func Stopmap(w http.ResponseWriter, r *http.Request) {
 	lon := r.URL.Query().Get("lon")
 	date := r.URL.Query().Get("date")
 	time := r.URL.Query().Get("time")
+	cost := r.URL.Query().Get("cost")
+	basefare := r.URL.Query().Get("basefare")
 	log.Println(loc)
 
 	// data, _ := c.GetRawData()
@@ -297,21 +315,89 @@ func Stopmap(w http.ResponseWriter, r *http.Request) {
 	data["stopYear"] = stopYear
 	data["stopHour"] = stopHour
 	data["stopMinute"] = stopMinute
+	data["cost"] = cost
+	data["basefare"] = basefare
+
+	type Ride struct {
+		Distance string `json:"distance"`
+		Wait     string `json:"wait"`
+		Total    string `json:"total"`
+	}
+	if r.Method == "POST" {
+		//decoding http request
+		decoder := json.NewDecoder(r.Body)
+
+		d := Ride{}
+
+		// Decoder stores the parsed JSON into our user struct
+		// fails on regular submit, pass on REST client submit.
+		err := decoder.Decode(&d)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		fmt.Println(d.Distance)
+		fmt.Println(d.Wait)
+		fmt.Println(d.Total)
+	}
+	if lat != "" {
+		//
+
+		insForm, err := db.Prepare("INSERT INTO ride_history(user_id, from_lat,from_lon,from_date,from_time,base_fare,cost) VALUES(?,?,?,?,?,?,?)")
+		if err != nil {
+			panic(err.Error())
+		}
+		insForm1, err := insForm.Exec(uid, lat, lon, date, time, basefare, cost)
+		log.Println("INSERT: Date: " + date + " | lat: " + lat + " | lon: " + lon)
+
+		lastinsertid, err := insForm1.LastInsertId()
+		if err != nil {
+			panic(err.Error())
+		}
+		fmt.Println("lastinsertid: ", lastinsertid)
+
+		data["lastinsertid"] = lastinsertid
+	}
+	//dialog.Alert("Custom Fare created!")
+	//http.Redirect(w, r, "/customefare", 301)
+	defer db.Close()
+
+	ajax_post_data1 := r.FormValue("tolat")
+	ajax_post_data2 := r.FormValue("tolat")
+	fmt.Println(ajax_post_data1)
+	fmt.Println(ajax_post_data2)
 
 	tmpl.ExecuteTemplate(w, "Stopmap", data)
 
 }
 
 func Dashboard(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "cookie-name")
 
+	// Check if user is authenticated
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
 	res := 0
 
 	tmpl.ExecuteTemplate(w, "Dashboard", res)
 
 }
 func Profile(w http.ResponseWriter, r *http.Request) {
+
 	db := dbConn()
 	session, _ := store.Get(r, "cookie-name")
+
+	// Check if user is authenticated
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
 	username := session.Values["username"] // we get email from browser.
 	id := session.Values["id"]             // we get email from browser.
 	log.Println(username)
@@ -356,6 +442,15 @@ func Profile(w http.ResponseWriter, r *http.Request) {
 
 }
 func UserUpdate(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "cookie-name")
+
+	// Check if user is authenticated
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
 	db := dbConn()
 	if r.Method == "POST" {
 
@@ -454,6 +549,43 @@ func FareSetting(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "Fare-setting", res)
 
 }
+func FareSettingEdit(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "cookie-name")
+
+	// Check if user is authenticated
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
+	db := dbConn()
+	nId := r.URL.Query().Get("id")
+	selDB, err := db.Query("SELECT id,fare_name,base_fare,min_fare,cost FROM custom_fare WHERE id=?", nId)
+	if err != nil {
+		panic(err.Error())
+	}
+	fare := Fare{}
+	for selDB.Next() {
+		var id int
+		var fare_name, base_fare, min_fare, cost string
+		err = selDB.Scan(&id, &fare_name, &base_fare, &min_fare, &cost)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		fare.Id = id
+		fare.FareName = fare_name
+		fare.BaseFare = base_fare
+		fare.MinFare = min_fare
+		fare.Cost = cost
+
+	}
+
+	tmpl.ExecuteTemplate(w, "Fare-setting-edit", fare)
+	defer db.Close()
+
+}
 func FareInsert(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "cookie-name")
 
@@ -484,6 +616,56 @@ func FareInsert(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/customefare", 301)
 	defer db.Close()
 
+}
+func FareUpdate(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "cookie-name")
+
+	// Check if user is authenticated
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
+	db := dbConn()
+	if r.Method == "POST" {
+		id := r.FormValue("id")
+		fare_name := r.FormValue("fare_name")
+		base_fare := r.FormValue("base_fare")
+		min_fare := r.FormValue("min_fare")
+		cost := r.FormValue("cost")
+
+		insForm, err := db.Prepare("UPDATE custom_fare SET fare_name=?, base_fare=?, min_fare=?,cost=? WHERE id=?")
+		if err != nil {
+			panic(err.Error())
+		}
+		insForm.Exec(fare_name, base_fare, min_fare, cost, id)
+
+		defer db.Close()
+		dialog.Alert("Custom Fare Updated!")
+		http.Redirect(w, r, "/customefare", 301)
+	}
+}
+func FareDelete(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "cookie-name")
+
+	// Check if user is authenticated
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
+	db := dbConn()
+	id := r.URL.Query().Get("id")
+	delForm, err := db.Prepare("DELETE FROM custom_fare WHERE id=?")
+	if err != nil {
+		panic(err.Error())
+	}
+	delForm.Exec(id)
+	dialog.Alert("Custom Fare Deleted!")
+	defer db.Close()
+	http.Redirect(w, r, "/customefare", 301)
 }
 
 func Email(w http.ResponseWriter, r *http.Request) {
@@ -527,6 +709,53 @@ func Email(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Email Sent!", http.StatusAccepted)
 	fmt.Println("Email Sent!")
 }
+func receiveAjax(w http.ResponseWriter, r *http.Request) {
+	db := dbConn()
+	if r.Method == "POST" {
+
+		tolat := r.FormValue("tolat")
+		tolon := r.FormValue("tolon")
+		stopdate := r.FormValue("stopdate")
+		stoptime := r.FormValue("stoptime")
+		distance := r.FormValue("distance")
+		wait := r.FormValue("wait")
+		duration := r.FormValue("duration")
+		total := r.FormValue("total")
+		lastid := r.FormValue("lastid")
+
+		insForm, err := db.Prepare("UPDATE ride_history SET to_lat=?, to_lon=?, to_date=?,to_time=?,distance=?,waiting=?,duration=?,total=? WHERE id=?")
+		if err != nil {
+			panic(err.Error())
+		}
+		insForm.Exec(tolat, tolon, stopdate, stoptime, distance, wait, duration, total, lastid)
+		// fmt.Println(ajax_post_data1)
+		// fmt.Println(ajax_post_data2)
+		//ajax_post_data := r.FormValue("ajax_post_data")
+		fmt.Println("Receive ajax post data string ", duration)
+		w.Write([]byte("<h2>after<h2>"))
+		defer db.Close()
+	}
+}
+func Amount(w http.ResponseWriter, r *http.Request) {
+	db := dbConn()
+	if r.Method == "POST" {
+
+		amount_status := r.FormValue("amount_status")
+		lastid := r.FormValue("lastid")
+
+		insForm, err := db.Prepare("UPDATE ride_history SET amount_status=? WHERE id=?")
+		if err != nil {
+			panic(err.Error())
+		}
+		insForm.Exec(amount_status, lastid)
+		// fmt.Println(ajax_post_data1)
+		// fmt.Println(ajax_post_data2)
+		//ajax_post_data := r.FormValue("ajax_post_data")
+		//fmt.Println("Receive ajax post data string ", duration)
+		w.Write([]byte("<h2>after<h2>"))
+		defer db.Close()
+	}
+}
 
 func main() {
 	//fs := http.FileServer(http.Dir("/css/"))
@@ -555,6 +784,9 @@ func main() {
 	http.HandleFunc("/customefare", Customefare)
 	http.HandleFunc("/fare-setting", FareSetting)
 	http.HandleFunc("/fare-insert", FareInsert)
+	http.HandleFunc("/fare-setting-edit", FareSettingEdit)
+	http.HandleFunc("/fare-update", FareUpdate)
+	http.HandleFunc("/fare-delete", FareDelete)
 
 	http.HandleFunc("/ride-history-detail", RideHistoryDdetail)
 
@@ -566,6 +798,9 @@ func main() {
 	http.HandleFunc("/user-update", UserUpdate)
 	http.HandleFunc("/forgotpassword", Forgotpassword)
 	http.HandleFunc("/", Home)
+
+	http.HandleFunc("/receive", receiveAjax)
+	http.HandleFunc("/amount", Amount)
 
 	//http.ListenAndServe(":8380", nil)
 	port := os.Getenv("PORT")
