@@ -43,6 +43,19 @@ type Fare struct {
 	Cost     string
 	UserId   int
 }
+type RideHistory struct {
+	Id       		int
+
+	FromDate 		string
+	FromTime 		string
+	FromAddress     string
+	ToAddress     	string
+	Duration   		string
+	Distance 		string
+	Total 			string
+	UserSession     int
+
+}
 
 func dbConn() (db *sql.DB) {
 	dbDriver := "mysql"
@@ -289,6 +302,7 @@ func Stopmap(w http.ResponseWriter, r *http.Request) {
 	time := r.URL.Query().Get("time")
 	cost := r.URL.Query().Get("cost")
 	basefare := r.URL.Query().Get("basefare")
+	from_address := r.URL.Query().Get("address")
 	log.Println(loc)
 
 	// data, _ := c.GetRawData()
@@ -317,6 +331,8 @@ func Stopmap(w http.ResponseWriter, r *http.Request) {
 	data["stopMinute"] = stopMinute
 	data["cost"] = cost
 	data["basefare"] = basefare
+	
+	data["from_address"] = from_address
 
 	type Ride struct {
 		Distance string `json:"distance"`
@@ -343,11 +359,11 @@ func Stopmap(w http.ResponseWriter, r *http.Request) {
 	if lat != "" {
 		//
 
-		insForm, err := db.Prepare("INSERT INTO ride_history(user_id, from_lat,from_lon,from_date,from_time,base_fare,cost) VALUES(?,?,?,?,?,?,?)")
+		insForm, err := db.Prepare("INSERT INTO ride_history(user_id, from_lat,from_lon,from_address,from_date,from_time,base_fare,cost) VALUES(?,?,?,?,?,?,?,?)")
 		if err != nil {
 			panic(err.Error())
 		}
-		insForm1, err := insForm.Exec(uid, lat, lon, date, time, basefare, cost)
+		insForm1, err := insForm.Exec(uid, lat, lon,from_address, date, time, basefare, cost)
 		log.Println("INSERT: Date: " + date + " | lat: " + lat + " | lon: " + lon)
 
 		lastinsertid, err := insForm1.LastInsertId()
@@ -479,9 +495,51 @@ func UserUpdate(w http.ResponseWriter, r *http.Request) {
 }
 func Ridehistory(w http.ResponseWriter, r *http.Request) {
 
-	res := 0
+
+	session, _ := store.Get(r, "cookie-name")
+
+	// Check if user is authenticated
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
+	user_id := session.Values["id"]
+	db := dbConn()
+	selDB, err := db.Query("SELECT id,COALESCE(from_date, '') as from_date,COALESCE(from_time,'') as from_time,COALESCE(from_address,'') as from_address ,COALESCE(to_address,'') as to_address, COALESCE(duration,'') as duration , COALESCE(distance,'') as distance ,COALESCE(total,'') as total  ,user_id FROM ride_history where user_id=? ORDER BY id DESC", user_id)
+	if err != nil {
+		panic(err.Error())
+	}
+	rideHistory := RideHistory{}
+	res := []RideHistory{}
+	for selDB.Next() {
+		var id, user_id int
+		var from_date, from_time, from_address, to_address,duration,distance,total string
+		err = selDB.Scan(&id, &from_date, &from_time, &from_address, &to_address,&duration,&distance,&total, &user_id)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		//}
+
+		rideHistory.Id = id
+		rideHistory.FromDate = from_date
+		rideHistory.FromTime = from_time
+		rideHistory.FromAddress = from_address
+		rideHistory.ToAddress = to_address
+		rideHistory.Duration = duration
+		rideHistory.Distance = distance
+		rideHistory.Total = total
+		rideHistory.UserSession = user_id
+
+		res = append(res, rideHistory)
+
+	}
 
 	tmpl.ExecuteTemplate(w, "Ridehistory", res)
+	defer db.Close()
+
 
 }
 func Customefare(w http.ResponseWriter, r *http.Request) {
@@ -721,13 +779,15 @@ func receiveAjax(w http.ResponseWriter, r *http.Request) {
 		wait := r.FormValue("wait")
 		duration := r.FormValue("duration")
 		total := r.FormValue("total")
+		to_address := r.FormValue("to_address")
 		lastid := r.FormValue("lastid")
+		
 
-		insForm, err := db.Prepare("UPDATE ride_history SET to_lat=?, to_lon=?, to_date=?,to_time=?,distance=?,waiting=?,duration=?,total=? WHERE id=?")
+		insForm, err := db.Prepare("UPDATE ride_history SET to_lat=?, to_lon=?, to_address=?, to_date=?,to_time=?,distance=?,waiting=?,duration=?,total=? WHERE id=?")
 		if err != nil {
 			panic(err.Error())
 		}
-		insForm.Exec(tolat, tolon, stopdate, stoptime, distance, wait, duration, total, lastid)
+		insForm.Exec(tolat, tolon, to_address, stopdate, stoptime, distance, wait, duration, total, lastid)
 		// fmt.Println(ajax_post_data1)
 		// fmt.Println(ajax_post_data2)
 		//ajax_post_data := r.FormValue("ajax_post_data")
@@ -780,6 +840,7 @@ func main() {
 	http.HandleFunc("/dashboard", Dashboard)
 	http.HandleFunc("/profile", Profile)
 	http.HandleFunc("/ridehistory", Ridehistory)
+	http.HandleFunc("/ride-history-detail", RideHistoryDdetail)
 
 	http.HandleFunc("/customefare", Customefare)
 	http.HandleFunc("/fare-setting", FareSetting)
@@ -788,7 +849,7 @@ func main() {
 	http.HandleFunc("/fare-update", FareUpdate)
 	http.HandleFunc("/fare-delete", FareDelete)
 
-	http.HandleFunc("/ride-history-detail", RideHistoryDdetail)
+
 
 	http.HandleFunc("/logout", Logout)
 	http.HandleFunc("/login", LoginPage)

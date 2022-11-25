@@ -15,32 +15,35 @@
             <h3 class="ride-heading">Ride History</h3>
         </div>
         <div class="ride-body-head">
+            {{ range . }}
             <div class="ride-body solo-container">
-                <a href="/ride-history-detail">
+                <a href="/ride-history-detail?id={{ .Id }}">
                     <div class="ride-plaza">
-                        <div class="date-span"><span>10/08/2022</span><span>08:30AM</span></div>
+                       
+                        <div class="date-span"><span>{{.FromDate}}</span><span>{{.FromTime}}</span></div>
                         <ul class="road-route">
-                            <li class="indra-road">7th, Main Road, Indira Nagar, Chennai. </li>
-                            <li class="social-plaza">Social Plaza, Anna Nagar, Chennai.</li>
+                            <li class="indra-road">{{.FromAddress}} </li>
+                            <li class="social-plaza">{{.ToAddress}}</li>
                         </ul>
                         <div class="route-time">
                             <span>
-                                <p>Time</p>
-                                <strong>00:24:12</strong>
+                                <p>Duration</p>
+                                <strong>{{.Duration}}</strong>
                             </span>
                             <span>
                                 <p>Distance</p>
-                                <strong>13.05Km</strong>
+                                <strong>{{.Distance}}</strong>
                             </span>
                             <span>
                                 <p>Total</p>
-                                <strong>₹189.05</strong>
+                                <strong>₹{{.Total}}</strong>
                             </span>
                         </div>
                     </div>
                 </a>
             </div>
-            <div class="ride-body solo-container">
+            {{ end }}
+            <!-- <div class="ride-body solo-container">
                 <div class="ride-plaza">
                     <div class="date-span"><span>10/08/2022</span><span>08:30AM</span></div>
                     <ul class="road-route">
@@ -62,8 +65,8 @@
                         </span>
                     </div>
                 </div>
-            </div>
-            <div class="ride-body solo-container">
+            </div> -->
+            <!-- <div class="ride-body solo-container">
                 <div class="ride-plaza">
                     <div class="date-span"><span>10/08/2022</span><span>08:30AM</span></div>
                     <ul class="road-route">
@@ -85,8 +88,8 @@
                         </span>
                     </div>
                 </div>
-            </div>
-            <div class="ride-body solo-container">
+            </div> -->
+            <!-- <div class="ride-body solo-container">
                 <div class="ride-plaza">
                     <div class="date-span"><span>10/08/2022</span><span>08:30AM</span></div>
                     <ul class="road-route">
@@ -108,7 +111,7 @@
                         </span>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 

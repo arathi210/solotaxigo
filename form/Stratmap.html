@@ -49,8 +49,8 @@
                 </div>
                 <div class="start-map-road">
                     <ul class="road-route">
-                        <li class="indra-road">7th, Main Road, Indira Nagar, Chennai. </li>
-                        <li class="social-plaza">Social Plaza, Anna Nagar, Chennai.</li>
+                        <li class="indra-road" id="address">7th, Main Road, Indira Nagar, Chennai. </li>
+                        <!-- <li class="social-plaza">Social Plaza, Anna Nagar, Chennai.</li> -->
                     </ul>
                 </div>
             </div>
@@ -58,12 +58,13 @@
     </div>
 
 <!-- <input type="text" name="location" id="location" value="">  -->
-<p id="location"></p>
+<p id="location" style="display: none;"></p>
+<!-- <p id="address" ></p> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="/public/js/custom.js"></script>
     <script src="/public/asset/bootstrap/js/bootstrap.min.js"></script>
 
-    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=geometry"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=geometry&key=AIzaSyBOtBm_jImkho72J9MW43QL4y1r5CzAiH8"></script>
 
 <script>
 $( document ).ready(function() {
@@ -79,18 +80,61 @@ if (navigator.geolocation) {
            lat = position.coords.latitude;
            lon = position.coords.longitude;
    // alert(lat);
-           
-            $('#location').val(location);
+
+
+
+   var geocoder;
+
+geocoder = new google.maps.Geocoder();
+var latlng = new google.maps.LatLng(lat, lon);
+alert(latlng);
+geocoder.geocode(
+    
+    {'latLng': latlng}, 
+    
+    function(results, status) {
+        //alert('com')
+        if (status == google.maps.GeocoderStatus.OK) {
+                if (results[0]) {
+                    var add= results[0].formatted_address ;
+                    var  value=add.split(",");
+
+                    count=value.length;
+                    country=value[count-1];
+                    state=value[count-2];
+                    city=value[count-3];
+                   alert("city name is: " + add);
+                   document.getElementById("address").innerHTML = add;
+
+
+                   $('#location').val(location);
             document.getElementById("location").innerHTML = location;
             // document.getElementById("basefare").innerHTML = basefare;
             // document.getElementById("cost").innerHTML = cost;
             basefare =  $('#basefare').html();
             cost =  $('#cost').html();
+            address =  $('#address').html();
+            alert(address);
             // cost= 0;
             // basefare=0;
             var link = $('#demo a');
-link.attr('href', link.attr('href') + '?lat='+lat+'&lon='+lon+'&basefare='+basefare+'&cost='+cost+'&date='+(d.getMonth() + 1)+"/"+d.getDate()+"/"+d.getFullYear()+'&time='+d.getHours()+":"+d.getMinutes());
+link.attr('href', link.attr('href') + '?lat='+lat+'&lon='+lon+'&address='+add+'&basefare='+basefare+'&cost='+cost+'&date='+(d.getMonth() + 1)+"/"+d.getDate()+"/"+d.getFullYear()+'&time='+d.getHours()+":"+d.getMinutes());
 
+
+                }
+                else  {
+                    alert("address not found");
+                }
+        }
+         else {
+            alert("Geocoder failed due to: " + status);
+        }
+    }
+);
+
+
+           
+            
         }, function () {
            // alert(null);
          

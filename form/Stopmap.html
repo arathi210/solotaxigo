@@ -8,9 +8,10 @@
 <p id="date">{{.date}}</p>
 <p id="time">{{.time}}</p>
 <p id="cost">{{.cost}}</p>
+<p id="wait">12</p>
+
 <p id="lastinsertid">{{.lastinsertid}}</p>
-<span
-                                class="fare-inner-two" style="display: none;" id="wait">12</span>
+
 
 <!-- <p id="stopDate">{{.stopDate}}-{{.stopMonth}}-{{.stopYear}}</p>
 <p id="stopTime">{{.stopHour}}:{{.stopMinute}}</p> -->
@@ -60,8 +61,8 @@
                 </div>
                 <div class="start-map-road">
                     <ul class="road-route">
-                        <li class="indra-road">7th, Main Road, Indira Nagar, Chennai. </li>
-                        <li class="social-plaza">Social Plaza, Anna Nagar, Chennai.</li>
+                        <li class="indra-road">{{.from_address}}</li>
+                        <li class="social-plaza" id="address">Social Plaza, Anna Nagar, Chennai.</li>
                     </ul>
                 </div>
             </div>
@@ -87,14 +88,14 @@
                                     <p class="inner-pickup-one">Pick up</p>
                                     <p class="inner-pickup-one" id="pickup">08:30AM</p>
                                 </div>
-                                7th, Main Road, Indira Nagar, Chennai.
+                                <span>{{.from_address}}</span>
                             </li>
                             <li class="social-plaza">
                                 <div class="inner-pickup">
                                     <p class="inner-pickup-one">Drop</p>
                                     <p class="inner-pickup-one" id="drop">08:47AM</p>
                                 </div>
-                                Social Plaza, Anna Nagar, Chennai.
+                                <span id="to_address">Social Plaza, Anna Nagar, Chennai.</span>
                             </li>
                         </ul>
                     </div>
@@ -111,8 +112,7 @@
                         <div class="fare-inner"> <span class="fare-inner-one">Total Distance</span><span
                                 class="fare-inner-two" id="totaldistance"></span></div>
                         <div class="fare-inner"> <span class="fare-inner-one">Waiting Charges</span><span
-                                class="fare-inner-two">₹12</span><span
-                                class="fare-inner-two" style="display: none;" id="wait">12</span></div>
+                                class="fare-inner-two" >₹12</span></div>
                         <div class="fare-inner"> <span class="fare-inner-one">Total(Distance x Cost + Waiting Charges)</span><span
                                 class="fare-inner-two" id="total"></span></div>
                     </div>
@@ -151,7 +151,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="/public/js/custom.js"></script>
     <script src="/public/asset/bootstrap/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=geometry"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=geometry&key=AIzaSyBOtBm_jImkho72J9MW43QL4y1r5CzAiH8"></script>
 
 <script>
      function initialize() {
@@ -173,6 +173,45 @@ if (navigator.geolocation) {
             //alert(location);
             lat = position.coords.latitude;
     lon = position.coords.longitude;
+
+    var geocoder;
+
+geocoder = new google.maps.Geocoder();
+//var latlng = new google.maps.LatLng(lat, lon);
+var latlng = new google.maps.LatLng(16.164269, 74.819126);
+alert(latlng);
+geocoder.geocode(
+    
+    {'latLng': latlng}, 
+    
+    function(results, status) {
+        //alert('com')
+        if (status == google.maps.GeocoderStatus.OK) {
+                if (results[0]) {
+                    var add= results[0].formatted_address ;
+                    var  value=add.split(",");
+
+                    count=value.length;
+                    country=value[count-1];
+                    state=value[count-2];
+                    city=value[count-3];
+                  // alert("city name is: " + add);
+                   document.getElementById("address").innerHTML = add;
+                   document.getElementById("to_address").innerHTML = add;
+
+            address =  $('#address').html();
+            alert(address);
+           
+                }
+                else  {
+                    alert("address not found");
+                }
+        }
+         else {
+            alert("Geocoder failed due to: " + status);
+        }
+    }
+);
     //alert(lat);
            
         }, function () {
@@ -225,6 +264,8 @@ lat =  $('#lat').html();
     lon =  $('#lon').html();
     cost =  $('#cost').html();
     wait =  $('#wait').html();
+    to_address =  $('#address').html();
+    alert(wait);
     lastid =  $('#lastinsertid').html();
 var p1 = new google.maps.LatLng(16.164269, 74.819126);
 var p2 = new google.maps.LatLng(lat,lon);
@@ -235,7 +276,9 @@ document.getElementById("distance").innerHTML = calcDistance(p1, p2);
 distance = calcDistance(p1, p2);
 document.getElementById("totaldistance").innerHTML = calcDistance(p1, p2);
 //$('#duration').html() = formatted;
-total = Math.ceil((calcDistance(p1, p2)*cost)+wait);
+totalcost  = Math.ceil((calcDistance(p1, p2)*cost));
+
+total = parseFloat(totalcost) + parseFloat(wait);
 document.getElementById("total").innerHTML = Math.ceil(total);
 
 
@@ -245,7 +288,7 @@ $.ajax({
                                url: 'receive',
                                type: 'post',
                                dataType: 'html',
-                                data : { tolat: tolat,tolon:tolon,stopdate:stopdate,stoptime:stoptime,distance:distance,wait:wait,duration:formatted,total:total,lastid:lastid},
+                                data : { tolat: tolat,tolon:tolon,to_address:to_address,stopdate:stopdate,stoptime:stoptime,distance:distance,wait:wait,duration:formatted,total:total,lastid:lastid},
                            // data : { tolat: "hello"},
                                success : function(data) {
                                  alert('ajax data posted');
@@ -282,36 +325,38 @@ $.ajax({
 
 
 //alert(latlong1);
-// var geocoder;
-// geocoder = new google.maps.Geocoder();
-// var latlng = new google.maps.LatLng(12.2958104, 76.6393805);
-// //alert(latlng);
-// geocoder.geocode(
+var geocoder;
+lat =  $('#lat').html();
+    lon =  $('#lon').html();
+geocoder = new google.maps.Geocoder();
+var latlng = new google.maps.LatLng(lat, lon);
+alert(latlng);
+geocoder.geocode(
     
-//     {'latLng': latlng}, 
+    {'latLng': latlng}, 
     
-//     function(results, status) {
-//         //alert('com')
-//         if (status == google.maps.GeocoderStatus.OK) {
-//                 if (results[0]) {
-//                     var add= results[0].formatted_address ;
-//                     var  value=add.split(",");
+    function(results, status) {
+        //alert('com')
+        if (status == google.maps.GeocoderStatus.OK) {
+                if (results[0]) {
+                    var add= results[0].formatted_address ;
+                    var  value=add.split(",");
 
-//                     count=value.length;
-//                     country=value[count-1];
-//                     state=value[count-2];
-//                     city=value[count-3];
-//                    // alert("city name is: " + city);
-//                 }
-//                 else  {
-//                     //alert("address not found");
-//                 }
-//         }
-//          else {
-//            // alert("Geocoder failed due to: " + status);
-//         }
-//     }
-// );
+                    count=value.length;
+                    country=value[count-1];
+                    state=value[count-2];
+                    city=value[count-3];
+                    alert("city name is: " + city);
+                }
+                else  {
+                    alert("address not found");
+                }
+        }
+         else {
+            alert("Geocoder failed due to: " + status);
+        }
+    }
+);
 
 });
 </script>
