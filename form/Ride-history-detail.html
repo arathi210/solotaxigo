@@ -3,32 +3,33 @@
 {{ template "Header" }}
 
 <body>
+
     <div class="ride-history-detail ">
         <div class="ride-header">
-            <div class="three-dot-div"><a href="/startmap"><img src="/public/asset/images/back.png" alt="three-dot"></a>
+            <div class="three-dot-div"><a href="/ridehistory"><img src="/public/asset/images/back.png" alt="three-dot"></a>
 
             </div>
             <h3 class="ride-heading">Ride History</h3>
         </div>
         <div class="ride-body-head">
             <div class="ride-detail-img solo-container">
-                <div class="ride-img-head"><img src="/public/asset/images/ride-history-detail.png" alt="map-image"></div>
+                <!-- <div class="ride-img-head"><img src="/public/asset/images/ride-history-detail.png" alt="map-image"></div> -->
                 <div class="rate-card-popup-road-map history-road">
                     <ul class="road-route">
                         <li class="indra-road">
                             <div></div>
                             <div class="inner-pickup">
                                 <p class="inner-pickup-one">Pick up</p>
-                                <p class="inner-pickup-one">08:30AM</p>
+                                <p class="inner-pickup-one">{{.FromTime}}</p>
                             </div>
-                            7th, Main Road, Indira Nagar, Chennai.
+                           {{.FromAddress}}
                         </li>
                         <li class="social-plaza">
                             <div class="inner-pickup">
                                 <p class="inner-pickup-one">Drop</p>
-                                <p class="inner-pickup-one">08:57AM</p>
+                                <p class="inner-pickup-one">{{.ToTime}}</p>
                             </div>
-                            Social Plaza, Anna Nagar, Chennai.
+                            {{.ToAddress}}
                         </li>
                     </ul>
                 </div>
@@ -37,32 +38,32 @@
                 <div class="route-time">
                     <span>
                         <p>Time</p>
-                        <strong>00:24:12</strong>
+                        <strong>{{.Duration}}</strong>
                     </span>
                     <span>
                         <p>Distance</p>
-                        <strong>13.05Km</strong>
+                        <strong>{{.Distance}}</strong>
                     </span>
                     <span>
                         <p>Total</p>
-                        <strong>₹189.05</strong>
+                        <strong>₹{{.Total}}</strong>
                     </span>
                 </div>
             </div>
             <div class="fare-details ride-detail-fare solo-container">
                 <h3>Fare Details</h3>
                 <div class="fare-inner"> <span class="fare-inner-one">Base fare</span><span
-                        class="fare-inner-two">₹84</span></div>
-                <div class="fare-inner"> <span class="fare-inner-one">Minimum fare</span><span
-                        class="fare-inner-two">₹32</span></div>
+                        class="fare-inner-two">₹{{.BaseFare}}</span></div>
+                <!-- <div class="fare-inner"> <span class="fare-inner-one">Minimum fare</span><span
+                        class="fare-inner-two">₹32</span></div> -->
                 <div class="fare-inner"> <span class="fare-inner-one">Price per Km (4x16)</span><span
-                        class="fare-inner-two">₹22</span></div>
-                <div class="fare-inner"> <span class="fare-inner-one">Price per Minute (22x1.6)</span><span
-                        class="fare-inner-two">₹23</span></div>
+                        class="fare-inner-two">₹{{.Cost}}</span></div>
+                <!-- <div class="fare-inner"> <span class="fare-inner-one">Price per Minute (22x1.6)</span><span
+                        class="fare-inner-two">₹23</span></div> -->
                 <div class="fare-inner"> <span class="fare-inner-one">Waiting Charges</span><span
-                        class="fare-inner-two">₹12</span></div>
-                <div class="fare-inner"> <span class="fare-inner-one">Total</span><span
-                        class="fare-inner-two">₹189</span></div>
+                        class="fare-inner-two">₹{{.Waiting}}</span></div>
+                <div class="fare-inner"> <span class="fare-inner-one">Total(Distance x Cost + Waiting Charges)</span><span
+                        class="fare-inner-two">₹{{.Total}}</span></div>
             </div>
         </div>
     </div>

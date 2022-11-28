@@ -44,17 +44,36 @@ type Fare struct {
 	UserId   int
 }
 type RideHistory struct {
-	Id       		int
+	Id int
 
-	FromDate 		string
-	FromTime 		string
-	FromAddress     string
-	ToAddress     	string
-	Duration   		string
-	Distance 		string
-	Total 			string
-	UserSession     int
+	FromDate    string
+	FromTime    string
+	ToTime      string
+	FromAddress string
+	ToAddress   string
+	Duration    string
+	Distance    string
+	Total       string
+	BaseFare    string
+	Cost        string
+	Waiting     string
+	UserSession int
+}
+type RideHistoryDetail struct {
+	Id int
 
+	FromDate    string
+	FromTime    string
+	ToTime      string
+	FromAddress string
+	ToAddress   string
+	Duration    string
+	Distance    string
+	Total       string
+	BaseFare    string
+	Cost        string
+	Waiting     string
+	UserSession int
 }
 
 func dbConn() (db *sql.DB) {
@@ -331,7 +350,7 @@ func Stopmap(w http.ResponseWriter, r *http.Request) {
 	data["stopMinute"] = stopMinute
 	data["cost"] = cost
 	data["basefare"] = basefare
-	
+
 	data["from_address"] = from_address
 
 	type Ride struct {
@@ -363,7 +382,7 @@ func Stopmap(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err.Error())
 		}
-		insForm1, err := insForm.Exec(uid, lat, lon,from_address, date, time, basefare, cost)
+		insForm1, err := insForm.Exec(uid, lat, lon, from_address, date, time, basefare, cost)
 		log.Println("INSERT: Date: " + date + " | lat: " + lat + " | lon: " + lon)
 
 		lastinsertid, err := insForm1.LastInsertId()
@@ -397,9 +416,74 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", 301)
 		return
 	}
-	res := 0
+	//res := 0
+	//var now time.Time
+	currentTime := time.Now()
+	startTime := time.Now().AddDate(0, 0, -1)
+	fmt.Println("Current Time in String: ", currentTime.String())
 
-	tmpl.ExecuteTemplate(w, "Dashboard", res)
+	fmt.Println("MM/DD/YYYY : ", currentTime.Format("01/02/2006"))
+	fmt.Println("MM/DD/YYYY : ", startTime.Format("01/02/2006"))
+
+	user_id := session.Values["id"]
+	db := dbConn()
+	// selDB, err := db.Query("SELECT count(total) FROM  ride_history WHERE user_id=?", user_id)
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
+	// user := User{}
+	// //emp := Employee{}
+	// for selDB.Next() {
+	// 	var id int
+	// 	var name, email, mobile, password string
+	// 	err = selDB.Scan(&id, &name, &email, &mobile, &password)
+	// 	if err != nil {
+	// 		panic(err.Error())
+	// 	}
+
+	// }
+
+	var count, todayCount, yesterdayCount, totalTrip, duration int
+	var distance float32
+	data := make(map[string]interface{})
+
+	err := db.QueryRow("SELECT COALESCE(SUM(total),0) as total FROM ride_history WHERE user_id=? AND to_date=?", user_id, currentTime.Format("01-02-2006")).Scan(&todayCount)
+	switch {
+	case err != nil:
+		log.Fatal(err)
+	default:
+
+		data["todayCount"] = todayCount
+		//res = count
+		//fmt.Printf("Number of rows are %s\n", count)
+	}
+
+	err2 := db.QueryRow("SELECT SUM(total),COUNT(*), SUM(duration) ,SUM(distance) FROM ride_history WHERE user_id=? ", user_id).Scan(&count, &totalTrip, &duration, &distance)
+	switch {
+	case err2 != nil:
+		log.Fatal(err2)
+	default:
+
+		data["count"] = count
+		data["totalTrip"] = totalTrip
+		data["duration"] = duration
+		data["distance"] = distance
+		//res = count
+		//fmt.Printf("Number of rows are %s\n", count)
+	}
+
+	err3 := db.QueryRow("SELECT COALESCE(SUM(total),0) as total FROM ride_history WHERE user_id=? AND to_date=?", user_id, startTime.Format("01-02-2006")).Scan(&yesterdayCount)
+	switch {
+	case err3 != nil:
+		log.Fatal(err3)
+	default:
+
+		data["yesterdayCount"] = yesterdayCount
+		//res = count
+		//fmt.Printf("Number of rows are %s\n", count)
+	}
+
+	tmpl.ExecuteTemplate(w, "Dashboard", data)
 
 }
 func Profile(w http.ResponseWriter, r *http.Request) {
@@ -414,8 +498,8 @@ func Profile(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", 301)
 		return
 	}
-	username := session.Values["username"] // we get email from browser.
-	id := session.Values["id"]             // we get email from browser.
+	username := session.Values["username"] // we get username from browser.
+	id := session.Values["id"]             // we get id from browser.
 	log.Println(username)
 	if username == nil {
 		http.Redirect(w, r, "/login", 301)
@@ -495,7 +579,6 @@ func UserUpdate(w http.ResponseWriter, r *http.Request) {
 }
 func Ridehistory(w http.ResponseWriter, r *http.Request) {
 
-
 	session, _ := store.Get(r, "cookie-name")
 
 	// Check if user is authenticated
@@ -515,8 +598,8 @@ func Ridehistory(w http.ResponseWriter, r *http.Request) {
 	res := []RideHistory{}
 	for selDB.Next() {
 		var id, user_id int
-		var from_date, from_time, from_address, to_address,duration,distance,total string
-		err = selDB.Scan(&id, &from_date, &from_time, &from_address, &to_address,&duration,&distance,&total, &user_id)
+		var from_date, from_time, from_address, to_address, duration, distance, total string
+		err = selDB.Scan(&id, &from_date, &from_time, &from_address, &to_address, &duration, &distance, &total, &user_id)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -539,7 +622,6 @@ func Ridehistory(w http.ResponseWriter, r *http.Request) {
 
 	tmpl.ExecuteTemplate(w, "Ridehistory", res)
 	defer db.Close()
-
 
 }
 func Customefare(w http.ResponseWriter, r *http.Request) {
@@ -587,10 +669,54 @@ func Customefare(w http.ResponseWriter, r *http.Request) {
 }
 
 func RideHistoryDdetail(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "cookie-name")
 
-	res := 0
+	// Check if user is authenticated
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
 
-	tmpl.ExecuteTemplate(w, "Ride-history-detail", res)
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
+	db := dbConn()
+	nId := r.URL.Query().Get("id")
+	log.Println(nId)
+	selDB, err := db.Query("SELECT id,COALESCE(from_time, '') as from_time, COALESCE(to_time, '') as to_time, COALESCE(from_address, '') as from_address, COALESCE(to_address, '') as to_address, COALESCE(duration, '') as duration, COALESCE(distance, '') as distance, COALESCE(total, '') as total, COALESCE(base_fare, '') as base_fare, COALESCE(cost, '') as cost, COALESCE(waiting, '') as waiting  FROM ride_history WHERE id=?", nId)
+	if err != nil {
+		panic(err.Error())
+	}
+	// rideHistoryDetail := RideHistoryDetail{}
+	// res1 := []RideHistoryDetail{}
+
+	rideHistoryDetail := RideHistoryDetail{}
+	for selDB.Next() {
+		var id int
+		var from_time, to_time, from_address, to_address, duration, distance, total, base_fare, cost, waiting string
+		err = selDB.Scan(&id, &from_time, &to_time, &from_address, &to_address, &duration, &distance, &total, &base_fare, &cost, &waiting)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		//}
+
+		rideHistoryDetail.Id = id
+		rideHistoryDetail.FromTime = from_time
+		rideHistoryDetail.ToTime = to_time
+		rideHistoryDetail.FromAddress = from_address
+		rideHistoryDetail.ToAddress = to_address
+		rideHistoryDetail.Duration = duration
+		rideHistoryDetail.Distance = distance
+		rideHistoryDetail.Total = total
+		rideHistoryDetail.BaseFare = base_fare
+		rideHistoryDetail.Cost = cost
+		rideHistoryDetail.Waiting = waiting
+		//rideHistory.UserSession = user_id
+
+		//res1 = append(res1, rideHistoryDetail)
+
+	}
+	tmpl.ExecuteTemplate(w, "Ride-history-detail", rideHistoryDetail)
+	defer db.Close()
 
 }
 func Home(w http.ResponseWriter, r *http.Request) {
@@ -781,7 +907,6 @@ func receiveAjax(w http.ResponseWriter, r *http.Request) {
 		total := r.FormValue("total")
 		to_address := r.FormValue("to_address")
 		lastid := r.FormValue("lastid")
-		
 
 		insForm, err := db.Prepare("UPDATE ride_history SET to_lat=?, to_lon=?, to_address=?, to_date=?,to_time=?,distance=?,waiting=?,duration=?,total=? WHERE id=?")
 		if err != nil {
@@ -848,8 +973,6 @@ func main() {
 	http.HandleFunc("/fare-setting-edit", FareSettingEdit)
 	http.HandleFunc("/fare-update", FareUpdate)
 	http.HandleFunc("/fare-delete", FareDelete)
-
-
 
 	http.HandleFunc("/logout", Logout)
 	http.HandleFunc("/login", LoginPage)
