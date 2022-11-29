@@ -3,14 +3,14 @@
 {{ template "Header" }}
 
 <body onload="initialize()">
-<p  id="lat">{{.lat}}</p>
-<p   id="lon">{{.lon}}</p>
-<p  id="date">{{.date}}</p>
-<p  id="time">{{.time}}</p>
-<p   id="cost">{{.cost}}</p>
-<p  id="wait">12</p>
+<p id="lat">{{.lat}}</p>
+<p id="lon">{{.lon}}</p>
+<p id="date">{{.date}}</p>
+<p id="time">{{.time}}</p>
+<p id="cost">{{.cost}}</p>
+<p id="wait">12</p>
 
-<p  id="lastinsertid">{{.lastinsertid}}</p>
+<p id="lastinsertid">{{.lastinsertid}}</p>
 
 
 <!-- <p id="stopDate">{{.stopDate}}-{{.stopMonth}}-{{.stopYear}}</p>
@@ -179,7 +179,7 @@ if (navigator.geolocation) {
 geocoder = new google.maps.Geocoder();
 //var latlng = new google.maps.LatLng(lat, lon);
 var latlng = new google.maps.LatLng(16.164269, 74.819126);
-//alert(latlng);
+alert(latlng);
 geocoder.geocode(
     
     {'latLng': latlng}, 
@@ -200,28 +200,28 @@ geocoder.geocode(
                    document.getElementById("to_address").innerHTML = add;
 
             address =  $('#address').html();
-            //alert(address);
+            alert(address);
            
                 }
                 else  {
-                   // alert("address not found");
+                    alert("address not found");
                 }
         }
          else {
-            //alert("Geocoder failed due to: " + status);
+            alert("Geocoder failed due to: " + status);
         }
     }
 );
     //alert(lat);
            
         }, function () {
-           // alert(null);
+            alert(null);
         });
     }
     else {
-       // alert(null);
+        alert(null);
     }
-//alert(calcDistance(p1, p2));
+alert(calcDistance(p1, p2));
 document.getElementById("ride").innerHTML = calcDistance(p1, p2)+" km";
 
 //calculates distance between two points in km's
@@ -232,14 +232,14 @@ function calcDistance(p1, p2) {
     $('#stop').click(function() {
 
         var d = new Date($.now());
-//alert(d.getDate()+"-"+(d.getMonth() + 1)+"-"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds());
+alert(d.getDate()+"-"+(d.getMonth() + 1)+"-"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds());
 
 stopdate = (d.getMonth() + 1)+"-"+d.getDate()+"-"+d.getFullYear();
 stoptime = d.getHours()+":"+d.getMinutes();
 startdate =  $('#date').html();
 starttime =  $('#time').html();
-//alert(startdate);
-//alert(starttime);
+alert(startdate);
+alert(starttime);
 
 var start_actual_time  =  startdate+' '+starttime;
 var end_actual_time    =  (d.getMonth() + 1)+"/"+d.getDate()+"/"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes();
@@ -259,13 +259,13 @@ var MM = Math.floor(diffSeconds%3600)/60;
 var formatted = ((HH < 10)?("0" + HH):HH) + " Hour " + ((MM < 10)?("0" + MM):MM)+ " Min " 
 
 
-//alert(formatted);
+alert(formatted);
 lat =  $('#lat').html();
     lon =  $('#lon').html();
     cost =  $('#cost').html();
     wait =  $('#wait').html();
     to_address =  $('#address').html();
-    //alert(wait);
+    alert(wait);
     lastid =  $('#lastinsertid').html();
 var p1 = new google.maps.LatLng(16.164269, 74.819126);
 var p2 = new google.maps.LatLng(lat,lon);
@@ -291,7 +291,7 @@ $.ajax({
                                 data : { tolat: tolat,tolon:tolon,to_address:to_address,stopdate:stopdate,stoptime:stoptime,distance:distance,wait:wait,duration:formatted,total:total,lastid:lastid},
                            // data : { tolat: "hello"},
                                success : function(data) {
-                                 //alert('ajax data posted');
+                                 alert('ajax data posted');
                                 // $('#result').html(data);
                                },
                              });
@@ -330,7 +330,7 @@ lat =  $('#lat').html();
     lon =  $('#lon').html();
 geocoder = new google.maps.Geocoder();
 var latlng = new google.maps.LatLng(lat, lon);
-//alert(latlng);
+alert(latlng);
 geocoder.geocode(
     
     {'latLng': latlng}, 
@@ -346,14 +346,14 @@ geocoder.geocode(
                     country=value[count-1];
                     state=value[count-2];
                     city=value[count-3];
-                    //alert("city name is: " + city);
+                    alert("city name is: " + city);
                 }
                 else  {
-                   // alert("address not found");
+                    alert("address not found");
                 }
         }
          else {
-            //alert("Geocoder failed due to: " + status);
+            alert("Geocoder failed due to: " + status);
         }
     }
 );

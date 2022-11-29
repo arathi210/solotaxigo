@@ -87,7 +87,7 @@ if (navigator.geolocation) {
 
 geocoder = new google.maps.Geocoder();
 var latlng = new google.maps.LatLng(lat, lon);
-//alert(latlng);
+alert(latlng);
 geocoder.geocode(
     
     {'latLng': latlng}, 
@@ -103,7 +103,7 @@ geocoder.geocode(
                     country=value[count-1];
                     state=value[count-2];
                     city=value[count-3];
-                  // alert("city name is: " + add);
+                   alert("city name is: " + add);
                    document.getElementById("address").innerHTML = add;
 
 
@@ -114,7 +114,7 @@ geocoder.geocode(
             basefare =  $('#basefare').html();
             cost =  $('#cost').html();
             address =  $('#address').html();
-           // alert(address);
+            alert(address);
             // cost= 0;
             // basefare=0;
             var link = $('#demo a');
@@ -123,11 +123,11 @@ link.attr('href', link.attr('href') + '?lat='+lat+'&lon='+lon+'&address='+add+'&
 
                 }
                 else  {
-                   // alert("address not found");
+                    alert("address not found");
                 }
         }
          else {
-           // alert("Geocoder failed due to: " + status);
+            alert("Geocoder failed due to: " + status);
         }
     }
 );
