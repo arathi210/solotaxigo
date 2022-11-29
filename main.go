@@ -78,9 +78,9 @@ type RideHistoryDetail struct {
 
 func dbConn() (db *sql.DB) {
 	dbDriver := "mysql"
-	dbUser := "root"
-	dbPass := ""
-	dbName := "solotaxi"
+	dbUser := "solotaxi-go-test"
+	dbPass := "kyOHnErbeKNpl9W"
+	dbName := "solotaxi_go_test"
 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
 	if err != nil {
 		panic(err.Error())
@@ -90,6 +90,21 @@ func dbConn() (db *sql.DB) {
 	return db
 
 }
+
+// func dbConn() (db *sql.DB) {
+// 	dbDriver := "mysql"
+// 	dbUser := "root"
+// 	dbPass := ""
+// 	dbName := "solotaxi"
+// 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
+// 	if err != nil {
+// 		panic(err.Error())
+// 	}
+
+// 	//log.Println("connected")
+// 	return db
+
+// }
 
 var tmpl = template.Must(template.ParseGlob("form/*"))
 
