@@ -14,6 +14,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/sessions"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"tawesoft.co.uk/go/dialog"
 )
@@ -76,26 +77,23 @@ type RideHistoryDetail struct {
 	UserSession int
 }
 
-func dbConn() (db *sql.DB) {
-	dbDriver := "mysql"
-	dbUser := "solotaxi-go-test"
-	dbPass := "kyOHnErbeKNpl9W"
-	dbName := "solotaxi_go_test"
-	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
+func goDotEnvVariable(key string) string {
+
+	// load .env file
+	err := godotenv.Load(".env")
+
 	if err != nil {
-		panic(err.Error())
+		log.Fatalf("Error loading .env file")
 	}
 
-	//log.Println("connected")
-	return db
-
+	return os.Getenv(key)
 }
 
 // func dbConn() (db *sql.DB) {
 // 	dbDriver := "mysql"
-// 	dbUser := "root"
-// 	dbPass := ""
-// 	dbName := "solotaxi"
+// 	dbUser := "solotaxi-go-test"
+// 	dbPass := "kyOHnErbeKNpl9W"
+// 	dbName := "solotaxi_go_test"
 // 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
 // 	if err != nil {
 // 		panic(err.Error())
@@ -105,6 +103,21 @@ func dbConn() (db *sql.DB) {
 // 	return db
 
 // }
+
+func dbConn() (db *sql.DB) {
+	dbDriver := goDotEnvVariable("DB_DRIVER")
+	dbUser := goDotEnvVariable("DB_USERNAME")
+	dbPass := goDotEnvVariable("DB_PASSWORD")
+	dbName := goDotEnvVariable("DB_DATABASE")
+	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
+	if err != nil {
+		panic(err.Error())
+	}
+	fmt.Printf("godotenv : %s = %s \n", "STRONGEST_AVENGER", dbDriver)
+	//log.Println("connected")
+	return db
+
+}
 
 var tmpl = template.Must(template.ParseGlob("form/*"))
 
