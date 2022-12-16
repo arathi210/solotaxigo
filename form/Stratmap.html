@@ -119,10 +119,7 @@ if (navigator.geolocation) {
 //   });
 
 
-
-
-
-   var src = "https://maps.google.com/maps?q="+lat+", "+lon+"&z=15&output=embed";
+var src = "https://maps.google.com/maps?q="+lat+", "+lon+"&z=15&output=embed";
 document.getElementById('currentloc').src = src;
    var geocoder;
 
@@ -148,7 +145,7 @@ geocoder.geocode(
                    document.getElementById("address").innerHTML = add;
 
 
-                   $('#location').val(location);
+            $('#location').val(location);
             document.getElementById("location").innerHTML = location;
             // document.getElementById("basefare").innerHTML = basefare;
             // document.getElementById("cost").innerHTML = cost;

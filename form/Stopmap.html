@@ -10,6 +10,9 @@
 <p style="display: none;" id="cost">{{.cost}}</p>
 <p style="display: none;" id="wait">12</p>
 
+<p style="display: none;" id="tolat"></p>
+<p style="display: none;" id="tolon"></p>
+
 <p style="display: none;" id="lastinsertid">{{.lastinsertid}}</p>
 
 
@@ -28,9 +31,10 @@
                     </div>
                     <div class="icon-inner-two"><img src="/public/asset/images/gps.png" alt="Gps image"></div>
                 </div>
-
+<!-- 
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d61313.4276691518!2d74.78410638236622!3d16.164348227801494!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc0afd5c38ffc3f%3A0x309845646e521b4d!2sGokak%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1667892375275!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen=""
-                 loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                 loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe> -->
+                 <iframe id="currentloc" src="" width="360" height="270" frameborder="0" style="border:0"></iframe>
             </div>
 
             <div class="map-start">
@@ -159,11 +163,11 @@
 
 }
 $( document ).ready(function() {
-    var p1 = new google.maps.LatLng(16.164269, 74.819126);
+    // var p1 = new google.maps.LatLng(16.164269, 74.819126);
     lat =  $('#lat').html();
     lon =  $('#lon').html();
-    tolat = 16.164269;
-    tolon = 74.819126;
+    // tolat = 16.164269;
+    // tolon = 74.819126;
 
 var p2 = new google.maps.LatLng(lat,lon);
 //alert(p2);
@@ -171,14 +175,25 @@ if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function (position) {
             var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             //alert(location);
-            lat = position.coords.latitude;
-    lon = position.coords.longitude;
+            tolat = position.coords.latitude;
+    tolon = position.coords.longitude;
+
+    var src = "https://maps.google.com/maps?q="+tolat+", "+tolon+"&z=15&output=embed";
+    document.getElementById('currentloc').src = src;
+
+    var p1 = new google.maps.LatLng(tolat, tolon);
+    document.getElementById("tolat").innerHTML = tolat;
+    document.getElementById("tolon").innerHTML = tolon;
 
     var geocoder;
 
+    //alert(p1);
+//alert(calcDistance(p1, p2));
+document.getElementById("ride").innerHTML = calcDistance(p1, p2)+" km";
+
 geocoder = new google.maps.Geocoder();
-//var latlng = new google.maps.LatLng(lat, lon);
-var latlng = new google.maps.LatLng(16.164269, 74.819126);
+var latlng = new google.maps.LatLng(lat, lon);
+// var latlng = new google.maps.LatLng(16.164269, 74.819126);
 //alert(latlng);
 geocoder.geocode(
     
@@ -221,8 +236,9 @@ geocoder.geocode(
     else {
         //alert(null);
     }
-//alert(calcDistance(p1, p2));
-document.getElementById("ride").innerHTML = calcDistance(p1, p2)+" km";
+//     alert(p1);
+// alert(calcDistance(p1, p2));
+// document.getElementById("ride").innerHTML = calcDistance(p1, p2)+" km";
 
 //calculates distance between two points in km's
 function calcDistance(p1, p2) {
@@ -260,14 +276,19 @@ var formatted = ((HH < 10)?("0" + HH):HH) + " Hour " + ((MM < 10)?("0" + MM):MM)
 
 
 //lert(formatted);
-lat =  $('#lat').html();
+    lat =  $('#lat').html();
     lon =  $('#lon').html();
+    tolat =  $('#tolat').html();
+    tolon =  $('#tolon').html();
     cost =  $('#cost').html();
     wait =  $('#wait').html();
     to_address =  $('#address').html();
     //alert(wait);
     lastid =  $('#lastinsertid').html();
-var p1 = new google.maps.LatLng(16.164269, 74.819126);
+// var p1 = new google.maps.LatLng(16.164269, 74.819126);
+
+var p1 = new google.maps.LatLng(tolat, tolon);
+
 var p2 = new google.maps.LatLng(lat,lon);
 document.getElementById("duration").innerHTML = formatted;
 document.getElementById("pickup").innerHTML = start_actual_time;
@@ -296,16 +317,7 @@ $.ajax({
                                },
                              });
                         
-
-
-
-
-
-
-
-
-
-    });
+ });
 
     $('#amount').click(function() {
         lastid =  $('#lastinsertid').html();
