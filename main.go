@@ -12,6 +12,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/gen2brain/beeep"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
@@ -235,16 +236,31 @@ func RegisterUser(res http.ResponseWriter, req *http.Request) {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
 			http.Error(res, "Server error, unable to create your account.", 500)
+			message := beeep.Notify("Server error", "unable to create your account", "assets/information.png")
+			if message != nil {
+				panic(message)
+			}
 			return
 		}
 
 		_, err = db.Exec("INSERT INTO users(name,mobile,email, password) VALUES(?, ?, ?, ?)", name, mobile, email, hashedPassword)
 		if err != nil {
 			http.Error(res, "Server error, unable to create your account.", 500)
+			message := beeep.Notify("Server error", "unable to create your account", "assets/information.png")
+			if message != nil {
+				panic(message)
+			}
 			return
 		}
 		defer db.Close()
 		//res.Write([]byte("User created!"))
+		message := beeep.Notify("User", "User created!", "assets/information.png")
+		if message != nil {
+			panic(message)
+		}
+		// c echo.Context;
+		// main.Set(c, "message", "Password is correct, you have been authenticated!")
+
 		dialog.Alert("User created!")
 		http.Redirect(res, req, "/register", 301)
 		return
