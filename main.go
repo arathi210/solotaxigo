@@ -16,6 +16,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
+	"github.com/martinlindhe/notify"
 	"golang.org/x/crypto/bcrypt"
 	"tawesoft.co.uk/go/dialog"
 )
@@ -215,6 +216,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 }
 func RegisterUser(res http.ResponseWriter, req *http.Request) {
+	session, _ := store.Get(req, "cookie-name")
 	db := dbConn()
 	if req.Method != "POST" {
 		//http.ServeFile(res, req, "signup.html")
@@ -235,6 +237,7 @@ func RegisterUser(res http.ResponseWriter, req *http.Request) {
 	case err == sql.ErrNoRows:
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
+			session.Values["error_message"] = "Server error, unable to create your account."
 			http.Error(res, "Server error, unable to create your account.", 500)
 			message := beeep.Notify("Server error", "unable to create your account", "assets/information.png")
 			if message != nil {
@@ -245,6 +248,7 @@ func RegisterUser(res http.ResponseWriter, req *http.Request) {
 
 		_, err = db.Exec("INSERT INTO users(name,mobile,email, password) VALUES(?, ?, ?, ?)", name, mobile, email, hashedPassword)
 		if err != nil {
+			session.Values["error_message"] = "Server error, unable to create your account."
 			http.Error(res, "Server error, unable to create your account.", 500)
 			message := beeep.Notify("Server error", "unable to create your account", "assets/information.png")
 			if message != nil {
@@ -252,6 +256,9 @@ func RegisterUser(res http.ResponseWriter, req *http.Request) {
 			}
 			return
 		}
+
+		notify.Notify("app name", "alert", "some text", "public/asset/images/add.png")
+		// Swal.fire("Any fool can use a computer")
 		defer db.Close()
 		//res.Write([]byte("User created!"))
 		message := beeep.Notify("User", "User created!", "assets/information.png")
@@ -260,9 +267,18 @@ func RegisterUser(res http.ResponseWriter, req *http.Request) {
 		}
 		// c echo.Context;
 		// main.Set(c, "message", "Password is correct, you have been authenticated!")
-
+		//res.Write([]byte("User Registered successfully!" + name))
 		dialog.Alert("User created!")
+		session.Values["success_message"] = "User created"
+
+		data := make(map[string]interface{})
+		data["error_message"] = session.Values["error_message"]
+		data["success_message1"] = "coming"
+
+		// res = append(res, data)
+
 		http.Redirect(res, req, "/register", 301)
+		//tmpl.ExecuteTemplate(res, "Register", data)
 		return
 
 	case err != nil:
