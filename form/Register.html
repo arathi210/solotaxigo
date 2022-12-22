@@ -10,30 +10,30 @@
             <p class="login-para">Please Enter Register Details</p>
         <form action="/register-user" method="post">
             <div class="input-wrapper ">
-                <input type="text" name="name" placeholder="Enter your name" class="login-input form-control" value="">
+                <input type="text" name="name" placeholder="Enter your name" class="login-input form-control" value="" required>
                 <label for="" class="login-label form-label">Full Name</label>
             </div>
             <div class="input-wrapper">
                 <div class="mbl-input-wrapper" for="mobilenumber">
                     <span><img src="/public/asset/images/india.png" alt=""></span>
                     <input type="text" name="mobile"  class="form-control univ-login-input login-input" id="MobileAndAddress"
-                        placeholder="+91" for="mobilenumber">
+                        placeholder="+91" for="mobilenumber" required>
                 </div>
                 <label for="" class="login-label form-label">Mobile Number</label>
             </div>
 
             <div class="input-wrapper">
-                <input type="text" name="email" placeholder="Enter your Email Address" class="login-input form-control">
+                <input type="text" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" name="email" placeholder="Enter your Email Address" class="login-input form-control" required>
                 <label for="" class="login-label form-label">Email Address</label>
             </div>
             <div class="input-wrapper">
                 <input type="password" name="password" placeholder="Enter your Password"
-                    class="login-input form-control forgot-password">
+                    class="login-input form-control forgot-password" required>
                 <label for="" class="login-label form-label">Create Password </label>
             </div>
             <div class="input-wrapper">
                 <input type="password" name="confirmPassword" placeholder="Enter your Password"
-                    class="login-input form-control forgot-password">
+                    class="login-input form-control forgot-password" required>
                 <label for="" class="login-label form-label">Confirm Password </label>
             </div>
             <button type="submit" class="onbord-btn btn">Register</button>

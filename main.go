@@ -12,13 +12,11 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/gen2brain/beeep"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
-	"github.com/martinlindhe/notify"
+
 	"golang.org/x/crypto/bcrypt"
-	"tawesoft.co.uk/go/dialog"
 )
 
 var (
@@ -148,16 +146,20 @@ func Logincheck(res http.ResponseWriter, req *http.Request) {
 	err := db.QueryRow("SELECT email, password FROM users WHERE email=?", email).Scan(&databaseUsername, &databasePassword)
 
 	if err != nil {
-
-		dialog.Alert("Username Incorrect")
-		http.Redirect(res, req, "/login", 301)
+		//fmt.Println(err)
+		//dialog.Alert("Username Incorrect")
+		message := "Username Incorrect"
+		http.Redirect(res, req, "/error?error_message="+message+"&page=login", 301)
+		//http.Redirect(res, req, "/login", 301)
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(databasePassword), []byte(password))
 	if err != nil {
-		dialog.Alert("Password incorrect")
-		http.Redirect(res, req, "/login", 301)
+		message := "Password Incorrect"
+		http.Redirect(res, req, "/error?error_message="+message+"&page=login", 301)
+		// dialog.Alert("Password incorrect")
+		// http.Redirect(res, req, "/login", 301)
 		return
 	}
 
@@ -191,8 +193,10 @@ func Logincheck(res http.ResponseWriter, req *http.Request) {
 	session.Save(req, res)
 
 	defer db.Close()
+	message := "Login Successful"
+	http.Redirect(res, req, "/success?success_message="+message+"&page=startmap", 301)
 	//res.Write([]byte("Hello" + databaseUsername))
-	http.Redirect(res, req, "/startmap", 301)
+	//http.Redirect(res, req, "/startmap", 301)
 
 }
 func Logout(w http.ResponseWriter, r *http.Request) {
@@ -216,7 +220,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 }
 func RegisterUser(res http.ResponseWriter, req *http.Request) {
-	session, _ := store.Get(req, "cookie-name")
+	//session, _ := store.Get(req, "cookie-name")
 	db := dbConn()
 	if req.Method != "POST" {
 		//http.ServeFile(res, req, "signup.html")
@@ -229,59 +233,73 @@ func RegisterUser(res http.ResponseWriter, req *http.Request) {
 
 	password := req.FormValue("password")
 
-	var user string
+	var databaseUsername string
 
-	err := db.QueryRow("SELECT email FROM users WHERE email=?", email).Scan(&user)
+	err := db.QueryRow("SELECT email FROM users WHERE email=?", email).Scan(&databaseUsername)
+	fmt.Println(err)
+	if err == nil {
+		fmt.Println("Email already exists ! Plese register with different email")
+		//dialog.Alert("Email Exists")
+		message := "Email already exists ! Plese register with different email"
+		http.Redirect(res, req, "/error?error_message="+message+"&page=register", 301)
+
+		//tmpl.ExecuteTemplate(res, "Emailerror", message)
+		return
+	}
 
 	switch {
 	case err == sql.ErrNoRows:
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
-			session.Values["error_message"] = "Server error, unable to create your account."
+			res.Write([]byte("Server error!"))
+			//session.Values["error_message"] = "Server error, unable to create your account."
 			http.Error(res, "Server error, unable to create your account.", 500)
-			message := beeep.Notify("Server error", "unable to create your account", "assets/information.png")
-			if message != nil {
-				panic(message)
-			}
+			// message := beeep.Notify("Server error", "unable to create your account", "assets/information.png")
+			// if message != nil {
+			// 	panic(message)
+			// }
 			return
 		}
 
 		_, err = db.Exec("INSERT INTO users(name,mobile,email, password) VALUES(?, ?, ?, ?)", name, mobile, email, hashedPassword)
 		if err != nil {
-			session.Values["error_message"] = "Server error, unable to create your account."
+			res.Write([]byte("Server error!"))
+			//session.Values["error_message"] = "Server error, unable to create your account."
 			http.Error(res, "Server error, unable to create your account.", 500)
-			message := beeep.Notify("Server error", "unable to create your account", "assets/information.png")
-			if message != nil {
-				panic(message)
-			}
+			// message := beeep.Notify("Server error", "unable to create your account", "assets/information.png")
+			// if message != nil {
+			// 	panic(message)
+			// }
 			return
 		}
 
-		notify.Notify("app name", "alert", "some text", "public/asset/images/add.png")
+		// notify.Notify("app name", "alert", "some text", "public/asset/images/add.png")
 		// Swal.fire("Any fool can use a computer")
 		defer db.Close()
 		//res.Write([]byte("User created!"))
-		message := beeep.Notify("User", "User created!", "assets/information.png")
-		if message != nil {
-			panic(message)
-		}
+		// message := beeep.Notify("User", "User created!", "assets/information.png")
+		// if message != nil {
+		// 	panic(message)
+		// }
 		// c echo.Context;
 		// main.Set(c, "message", "Password is correct, you have been authenticated!")
 		//res.Write([]byte("User Registered successfully!" + name))
-		dialog.Alert("User created!")
-		session.Values["success_message"] = "User created"
+		//dialog.Alert("User created!")
+		//session.Values["success_message"] = "User created"
 
-		data := make(map[string]interface{})
-		data["error_message"] = session.Values["error_message"]
-		data["success_message1"] = "coming"
+		// data := make(map[string]interface{})
+		// data["error_message"] = session.Values["error_message"]
+		// data["success_message1"] = "coming"
 
 		// res = append(res, data)
-
-		http.Redirect(res, req, "/register", 301)
+		thank_message := "Registered Successfully! Thank you !"
+		http.Redirect(res, req, "/success?success_message="+thank_message+"&page=login", 301)
+		// http.Redirect(res, req, "/thank-you", 301)
 		//tmpl.ExecuteTemplate(res, "Register", data)
 		return
 
 	case err != nil:
+		res.Write([]byte("Server error!"))
 		http.Error(res, "Server error, unable to create your account.", 500)
 		return
 	default:
@@ -290,6 +308,19 @@ func RegisterUser(res http.ResponseWriter, req *http.Request) {
 	}
 
 }
+func Success(w http.ResponseWriter, r *http.Request) {
+
+	res := 0
+	tmpl.ExecuteTemplate(w, "Success", res)
+
+}
+func Error(w http.ResponseWriter, r *http.Request) {
+
+	res := 0
+	tmpl.ExecuteTemplate(w, "Error", res)
+
+}
+
 func Forgotpassword(w http.ResponseWriter, r *http.Request) {
 
 	res := 0
@@ -856,8 +887,10 @@ func FareInsert(w http.ResponseWriter, r *http.Request) {
 		insForm.Exec(fare_name, base_fare, min_fare, cost, user_id)
 		log.Println("INSERT: Name: " + fare_name + " | Base_Fare: " + base_fare + " | Cost: " + cost)
 	}
-	dialog.Alert("Custom Fare created!")
-	http.Redirect(w, r, "/customefare", 301)
+	//dialog.Alert("Custom Fare created!")
+	message := "Custom Fare created Successfully"
+	http.Redirect(w, r, "/success?success_message="+message+"&page=customefare", 301)
+	// http.Redirect(w, r, "/customefare", 301)
 	defer db.Close()
 
 }
@@ -886,8 +919,11 @@ func FareUpdate(w http.ResponseWriter, r *http.Request) {
 		insForm.Exec(fare_name, base_fare, min_fare, cost, id)
 
 		defer db.Close()
-		dialog.Alert("Custom Fare Updated!")
-		http.Redirect(w, r, "/customefare", 301)
+		// dialog.Alert("Custom Fare Updated!")
+		// http.Redirect(w, r, "/customefare", 301)
+
+		message := "Custom Fare Updated Successfully"
+		http.Redirect(w, r, "/success?success_message="+message+"&page=customefare", 301)
 	}
 }
 func FareDelete(w http.ResponseWriter, r *http.Request) {
@@ -907,9 +943,13 @@ func FareDelete(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 	delForm.Exec(id)
-	dialog.Alert("Custom Fare Deleted!")
+	// dialog.Alert("Custom Fare Deleted!")
+
+	message := "Custom Fare Deleted Successfully"
+	http.Redirect(w, r, "/success?success_message="+message+"&page=customefare", 301)
+
 	defer db.Close()
-	http.Redirect(w, r, "/customefare", 301)
+	// http.Redirect(w, r, "/customefare", 301)
 }
 
 func Email(w http.ResponseWriter, r *http.Request) {
@@ -1039,6 +1079,10 @@ func main() {
 	http.HandleFunc("/login-check", Logincheck)
 	http.HandleFunc("/register", Register)
 	http.HandleFunc("/register-user", RegisterUser)
+
+	http.HandleFunc("/success", Success)
+	http.HandleFunc("/error", Error)
+
 	http.HandleFunc("/user-update", UserUpdate)
 	http.HandleFunc("/forgotpassword", Forgotpassword)
 	http.HandleFunc("/", Home)
