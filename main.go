@@ -549,7 +549,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 		//fmt.Printf("Number of rows are %s\n", count)
 	}
 
-	err2 := db.QueryRow("SELECT COALESCE(SUM(total),0) as total ,COUNT(*), SUM(duration) ,SUM(distance) FROM ride_history WHERE user_id=? ", user_id).Scan(&count, &totalTrip, &duration, &distance)
+	err2 := db.QueryRow("SELECT COALESCE(SUM(total),0) as total ,COUNT(*), COALESCE(SUM(duration),0) as duration  ,COALESCE(SUM(distance),0) as distance  FROM ride_history WHERE user_id=? ", user_id).Scan(&count, &totalTrip, &duration, &distance)
 	switch {
 	case err2 != nil:
 		log.Fatal(err2)
