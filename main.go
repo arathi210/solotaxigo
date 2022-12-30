@@ -1041,6 +1041,11 @@ func Amount(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 	}
 }
+func MapTest(w http.ResponseWriter, r *http.Request) {
+
+	res := 0
+	tmpl.ExecuteTemplate(w, "MapTest", res)
+}
 
 func main() {
 	//fs := http.FileServer(http.Dir("/css/"))
@@ -1089,6 +1094,8 @@ func main() {
 
 	http.HandleFunc("/receive", receiveAjax)
 	http.HandleFunc("/amount", Amount)
+
+	http.HandleFunc("/map-test", MapTest)
 
 	//http.ListenAndServe(":8380", nil)
 	port := os.Getenv("PORT")
