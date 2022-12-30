@@ -1046,6 +1046,11 @@ func MapTest(w http.ResponseWriter, r *http.Request) {
 	res := 0
 	tmpl.ExecuteTemplate(w, "MapTest", res)
 }
+func MapTest1(w http.ResponseWriter, r *http.Request) {
+
+	res := 0
+	tmpl.ExecuteTemplate(w, "MapTest1", res)
+}
 
 func main() {
 	//fs := http.FileServer(http.Dir("/css/"))
@@ -1096,6 +1101,7 @@ func main() {
 	http.HandleFunc("/amount", Amount)
 
 	http.HandleFunc("/map-test", MapTest)
+	http.HandleFunc("/map-test1", MapTest1)
 
 	//http.ListenAndServe(":8380", nil)
 	port := os.Getenv("PORT")
