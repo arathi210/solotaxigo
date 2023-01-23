@@ -177,7 +177,7 @@ $( document ).ready(function() {
         } else {
            // setInterval(() => {
                 navigator.geolocation.getCurrentPosition(getPosition)
-               // navigator.geolocation.watchPosition(getPosition, errorCallback, options);
+               
           //  }, 2000);
         };
 
@@ -186,17 +186,7 @@ $( document ).ready(function() {
 var p2 = new google.maps.LatLng(lat,lon);
 //alert(p2);
 
-// function errorCallback(error) {
-	
-// }
-// var options = {
-// 	//enableHighAccuracy: false,
-// 	//timeout: 1000,
-// 	//maximumAge: 0
-// };
 
-// navigator.permissions.query({ name: 'geolocation' })
-// .then(console.log)
 
 function getPosition(position) {
 //if (navigator.geolocation) {
