@@ -171,14 +171,42 @@ $( document ).ready(function() {
     // tolat = 16.164269;
     // tolon = 74.819126;
 
+
+    if (!navigator.geolocation) {
+            console.log("Your browser doesn't support geolocation feature!")
+        } else {
+           // setInterval(() => {
+                //navigator.geolocation.getCurrentPosition(getPosition)
+                navigator.geolocation.watchPosition(getPosition, errorCallback, options);
+          //  }, 2000);
+        };
+
+
+
 var p2 = new google.maps.LatLng(lat,lon);
 //alert(p2);
-if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (position) {
+
+function errorCallback(error) {
+	
+}
+var options = {
+	//enableHighAccuracy: false,
+	//timeout: 1000,
+	//maximumAge: 0
+};
+
+navigator.permissions.query({ name: 'geolocation' })
+.then(console.log)
+
+function getPosition(position) {
+//if (navigator.geolocation) {
+       // navigator.geolocation.getCurrentPosition(function (position) {
             var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             //alert(location);
             tolat = position.coords.latitude;
     tolon = position.coords.longitude;
+  
+
 
     var src = "https://maps.google.com/maps?q="+tolat+", "+tolon+"&z=15&output=embed";
     document.getElementById('currentloc').src = src;
@@ -186,6 +214,29 @@ if (navigator.geolocation) {
     var p1 = new google.maps.LatLng(tolat, tolon);
     document.getElementById("tolat").innerHTML = tolat;
     document.getElementById("tolon").innerHTML = tolon;
+
+
+
+    var latlng = new google.maps.LatLng(tolat, tolon);
+
+    var myOptions = {
+        zoom: 12,
+        center: latlng,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+
+  
+    map = new google.maps.Map(document.getElementById("currentloc"), myOptions);
+
+
+    marker = new google.maps.Marker({
+            position: latlng,
+            map: map,
+            title: "Latitude:"+tolat+" | Longitude:"+tolon
+        });
+    map.setCenter(latlng); //Here center the map.
+    marker.setPosition(latlng);
 
     var geocoder;
 
@@ -228,16 +279,10 @@ geocoder.geocode(
            // alert("Geocoder failed due to: " + status);
         }
     }
-);
+ ); }
     //alert(lat);
            
-        }, function () {
-            //alert(null);
-        });
-    }
-    else {
-        //alert(null);
-    }
+  
 //     alert(p1);
 // alert(calcDistance(p1, p2));
 // document.getElementById("ride").innerHTML = calcDistance(p1, p2)+" km";
